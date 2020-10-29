@@ -50,7 +50,8 @@ def openfile():
                 z = data.loc[:,'GPS时间']
 
                 fig = plt.figure()
-                ax = fig.gca(projection='3d')
+                # ax = fig.gca(projection='3d')
+                ax = Axes3D(fig)
                 # ax.zaxis_date(z)
                 ax.zaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
                 # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H'))

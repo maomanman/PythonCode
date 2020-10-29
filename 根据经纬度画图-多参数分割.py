@@ -60,6 +60,11 @@ class GetPoint:
 
 
 def slipt_by_toolState(data):
+    """
+    根据机具状态分割轨迹文件
+    :param data:  读取的轨迹文件data
+    :return:  分割出来的地块坐标
+    """
     line = len(data.values)  # 获取数据有多少行
     a = list(data['作业深度(mm)'])
     b = list(data['机具状态'])
