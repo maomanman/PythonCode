@@ -13,6 +13,9 @@ from xlutils.copy import copy
 import tkinter.messagebox
 from tkinter.filedialog import *
 
+from matplotlib.patches import Ellipse, Circle
+import matplotlib.pyplot as plt
+
 # dff = pda.dataframe(np.random.randint(20,size=(10,5)),columns=list('abcde'))
 
 """
@@ -385,6 +388,31 @@ def plotOverlap():
     # 两条曲线之间的区域
     plt.fill_between(xf, 60-xf, (xf - 3) * (xf - 5) * (xf - 7) + 85, color='blue', alpha=0.25)
     plt.show()
+
+
+def plotCircle(cicle1_x,cicle1_y,cicle2_x,cicle2_y,radius):
+    """
+    用于alpha shape 算法画圆的
+    :return:
+    """
+    # from matplotlib.patches import Ellipse, Circle
+    # import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cir1 = Circle(xy=(cicle1_x, cicle1_y), radius=radius, alpha=0.2, color='g')  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
+    ax.add_patch(cir1)
+    plt.axis('scaled')
+    plt.axis('equal')
+    cir2 = Circle(xy=(cicle2_x, cicle2_y), radius=radius, alpha=0.2)
+    ax.add_patch(cir2)
+
+    plt.plot(x[591], y[591], 'co', color='c')
+    # plt.plot(x[i_range],y[i_range],'co',color='r')
+    plt.plot([x[i], x[k]], [y[i], y[k]], '*')
+    plt.plot([cicle1_x, cicle2_x], [cicle1_y, cicle2_y], 'bo', markerfacecolor='r')
+
+
 """
 main 开始处
 """
