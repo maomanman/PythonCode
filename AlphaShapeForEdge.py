@@ -137,7 +137,7 @@ def alpha_shape_2D(data, radius):
                 b = a * (nomal_y / nomal_x)
             else:
                 a = 0
-                b = radius
+                b = disOfcenter
 
             # 圆心 坐标
             cicle1_x = center_x + a
@@ -157,7 +157,7 @@ def alpha_shape_2D(data, radius):
             inSquare = inSquare[[t for t, v in enumerate(data.loc[inSquare, 'y'] > cicle1_y - radius) if v == True]]
             if len(inSquare) != 0:
                 for j in inSquare:
-                    if j == i or j == k:  # 点集内的点 除去当前点i 和 备选点k
+                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (x[k], y[k])) == 0:  # 点集内的点 除去当前点i 和 备选点k
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle1_x, cicle1_y))  # 计算备选点k与点集内的点的距离
@@ -171,8 +171,7 @@ def alpha_shape_2D(data, radius):
             inSquare = inSquare[[t for t, v in enumerate(data.loc[inSquare, 'y'] > cicle2_y - radius) if v == True]]
             if len(inSquare) != 0:
                 for j in inSquare:  # 与原两个点的坐标点一样
-                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]),
-                                                                                                 (x[k], y[k])) == 0:
+                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (x[k], y[k])) == 0:
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle2_x, cicle2_y))
@@ -252,11 +251,11 @@ def getBatchEdge(radius=8):
         path = rootpath + '/' + fn
         data = GetData(path)
 
-        start = time.time()
         edgePath = rootpath + '/edge'
         if not os.path.exists(edgePath):
             os.mkdir(edgePath)
         path = edgePath + '/' + fn.split('.')[0] + '-edge'
+        start = time.time()
         edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
         end = time.time()
         print('运行时间：{}'.format(end - start))
@@ -359,5 +358,5 @@ def findRadius():
     del radiusInfo
 
 ####################################### main ############################
-# getBatchEdge()
-findRadius()
+getBatchEdge()
+# findRadius()
