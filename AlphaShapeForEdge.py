@@ -70,7 +70,7 @@ def distance(a, b):
     return dis
 
 
-def alpha_shape_2D(data, radius, path):
+def alpha_shape_2D(data, radius):
     """
     alpha shapes 算法检测边缘
     :param x: 原始点坐标集 x轴
@@ -86,7 +86,7 @@ def alpha_shape_2D(data, radius, path):
     temp_k = 0
     edge_x = []
     edge_y = []
-    edge = []
+    edge = []  # 存放边界点在原轨迹文件中的顺序号，非原轨迹文件中序列号
     edge_len = 0
 
     while (i < count):  # 遍历点集里的所有的点
@@ -103,8 +103,6 @@ def alpha_shape_2D(data, radius, path):
 
         """ i_range 是可能与当前点的连线组成边界线的备选点集"""
         for k in i_range:
-
-
             # 避免重复选点（一个点不能组成三个边界线，最多只能组成两条边界）
             if edge_x.count(x[k]) > 0 and edge_y.count(y[k]) > 0:
                 if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:
@@ -173,7 +171,8 @@ def alpha_shape_2D(data, radius, path):
             inSquare = inSquare[[t for t, v in enumerate(data.loc[inSquare, 'y'] > cicle2_y - radius) if v == True]]
             if len(inSquare) != 0:
                 for j in inSquare:  # 与原两个点的坐标点一样
-                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (x[k], y[k])) == 0:
+                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]),
+                                                                                                 (x[k], y[k])) == 0:
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle2_x, cicle2_y))
@@ -193,8 +192,8 @@ def alpha_shape_2D(data, radius, path):
                     edge.append(k)
 
                 # if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 :
-                if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 : # 边界点个数达到总
-                    if edge_len-edge_x.index(x[k]) > count*0.05: # 边界点总数达到一定数量后才可能到达结束点
+                if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:  # 边界点个数达到总
+                    if edge_len - edge_x.index(x[k]) > count * 0.05:  # 边界点总数达到一定数量后才可能到达结束点
                         temp_k = count
                     else:
                         continue
@@ -203,7 +202,7 @@ def alpha_shape_2D(data, radius, path):
                 break
 
         # print("edge_len={},i={}".format(edge_len,i))
-        print(i)
+        # print(i)
         if edge_len < len(edge_x) or temp_k == count:  # 跳转到新的边界点
             i = temp_k
             edge_len = len(edge_x)
@@ -214,11 +213,8 @@ def alpha_shape_2D(data, radius, path):
     edge_x.append(edge_x[0])
     edge_y.append(edge_y[0])
     edge.append(0)
-    dd = pda.DataFrame({'point': edge, 'x': edge_x, 'y': edge_y})
 
-    dd.to_csv(path + '.csv')
-    # dd.to_excel(path+'.xlsx')
-    return edge_x, edge_y,edge_len
+    return edge_x, edge_y, edge
 
 
 def GetData(path):
@@ -231,7 +227,7 @@ def GetData(path):
     # data = pda.read_excel('D:/mmm/python/轨迹测试数据/1104-alpha shape/新40-60002_2016-04-21==0421-0315-filed.xlsx')
 
     # data = pda.read_csv('D:/mmm/轨迹数据集/地块/按作业模式分类/套行法/csv/皖11-2004_2016-10-04==1003-2348-field.csv')
-    data = pda.read_csv(path,encoding='gb18030')
+    data = pda.read_csv(path)
 
     columns = data.columns
 
@@ -242,53 +238,126 @@ def GetData(path):
     return data
 
 
-####################################### main ############################
+def getBatchEdge(radius=8):
+    """
+    批量获得边界点
+    :return:
+    """
+    rootpath = 'D:/mmm/轨迹数据集/地块/按作业模式分类/梭行法/鱼尾转弯/csv'
+    fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.csv'))
+    info = pda.DataFrame(columns=['filename', 'edgeNum', 'pointNum', '耗时'])
+    t = 0
+    for fn in fns:
+        print(fn)
+        path = rootpath + '/' + fn
+        data = GetData(path)
 
-# rootpath = 'D:/mmm/轨迹数据集/地块/按作业模式分类/梭行法/鱼尾转弯/csv'
-rootpath= 'E:/Python/轨迹测试数据/1105-alpha shape 优化/梭行优化'
-fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.csv'))
-info = pda.DataFrame(columns=['filename','edgeNum','pointNum','耗时'])
-t = 0
-for fn in fns:
-    path = rootpath + '/' + fn
-    data = GetData(path)
+        start = time.time()
+        edgePath = rootpath + '/edge'
+        if not os.path.exists(edgePath):
+            os.mkdir(edgePath)
+        path = edgePath + '/' + fn.split('.')[0] + '-edge'
+        edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
+        end = time.time()
+        print('运行时间：{}'.format(end - start))
 
-    start = time.time()
-    edgePath = rootpath + '/edge'
-    if not os.path.exists(edgePath):
-        os.mkdir(edgePath)
-    path = edgePath + '/' +fn.split('.')[0] +'-edge'
-    edge_x, edge_y,edge_len = alpha_shape_2D(data, 8,path)
-    end = time.time()
-    print('运行时间：{}'.format(end - start))
+        dd = pda.DataFrame({'pointIndex': edge_index, 'x': edge_x, 'y': edge_y})
 
-    info.loc[t] = [fn, edge_len,data.shape[0], end - start]
-    t = t+1
+        dd.to_csv(path + '.csv')
+        # dd.to_excel(path+'.xlsx')
 
-    " 这一段是标记每个点的坐标"
-    # i=0
-    # while i <len(data.x):
-    #     plt.text(data.x[i],data.y[i],i,ha='center',va='bottom',fontsize=8,color='b')
-    #     i+=1
-    "结束"
+        info.loc[t] = [fn, len(edge_x), data.shape[0], end - start]
+        t = t + 1
 
-    imagePath = rootpath + '/image'
-    if not os.path.exists(imagePath):
-        os.mkdir(imagePath)
-    path = imagePath + '/' + fn.split('.')[0] + '-image.png'
-    # 标志点坐标
+        " 这一段是标记每个点的坐标"
+        # i=0
+        # while i <len(data.x):
+        #     plt.text(data.x[i],data.y[i],i,ha='center',va='bottom',fontsize=8,color='b')
+        #     i+=1
+        "结束"
+
+        imagePath = rootpath + '/image'
+        if not os.path.exists(imagePath):
+            os.mkdir(imagePath)
+        path = imagePath + '/' + fn.split('.')[0] + '-image.png'
+
+        plotEdge(data.x, data.y, edge_x, edge_y, path)
+        # 标志点坐标
+        # i = 0
+        # while i < len(edge_x):
+        #     plt.text(edge_x[i], edge_y[i], i, ha='center', va='bottom', fontsize=11, color='b')
+        #     i += 1
+        #
+        # plt.plot(data.x, data.y, 'bo-', color='k', linewidth=1, markersize=2)
+        # plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
+        #
+        # plt.axis('off')
+        # plt.savefig(path)
+        # plt.show()
+        # plt.close()
+
+        del data
+    info.to_excel(rootpath + '/info.xlsx')
+    del info
+
+
+def plotEdge(data_x, data_y, edge_x, edge_y, path):
+    """
+    画出原始轨迹图和边界轨迹图
+    :param data_x:  原始轨迹点的横坐标
+    :param data_y:  原始轨迹点的纵坐标
+    :param edge_x:  边界轨迹点的横坐标
+    :param edge_y:  边界轨迹点的纵坐标
+    :param path:    轨迹图的存放路径及名称
+    :return:
+    """
     # i = 0
     # while i < len(edge_x):
     #     plt.text(edge_x[i], edge_y[i], i, ha='center', va='bottom', fontsize=11, color='b')
     #     i += 1
 
-    plt.plot(data.x, data.y, 'bo-', color='k', linewidth=1, markersize=2)
+    plt.plot(data_x, data_y, 'bo-', color='k', linewidth=1, markersize=2)
     plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
 
     plt.axis('off')
     plt.savefig(path)
-    plt.close()
     # plt.show()
-    del data
-info.to_excel(rootpath + '/info.xlsx')
-del info
+    plt.close()
+
+
+def findRadius():
+    """
+    搜寻合适的圆半径
+    :return:
+    """
+    path = 'D:/mmm/python/轨迹测试数据/1106-半径优化'
+    f_r = '湘12-E1136_2016-10-13==1013-0746-field.csv'
+    f_t = '皖17-80100_2016-10-07==1006-2357-field.csv'
+    f_s = '新42-98765_2016-11-10==1109-2117-field.csv'
+    imagepath_r = path + '/image/' + f_r.replace('.csv', '-image.png')
+    imagepath_t = path + '/image/' + f_t.replace('.csv', '-image.png')
+    imagepath_s = path + '/image/' + f_s.replace('.csv', '-image.png')
+    imagepath = [imagepath_r,imagepath_t,imagepath_s]
+    data_r = GetData(path + '/' + f_r)  # 绕行
+    data_t = GetData(path + '/' + f_t)  # 套行
+    data_s = GetData(path + '/' + f_s)  # 梭行s
+    datas = [data_r,data_t,data_s]
+    radius = np.linspace(1, 10, 10)
+    radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时','边界占比率'])
+    i = 0
+    for r in radius:
+        for data,im in zip(datas,imagepath):
+            start = time.time()
+            edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+            end = time.time()
+            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start,len(edge_x)/data.shape[0]]
+            i += 1
+            im = im.replace('.', '-' + str(r) + '.')
+            plotEdge(data.x, data.y, edge_x, edge_y, im)
+
+    radiusInfo.to_excel(path+'/radiusInfo.xlsx')
+    del radiusInfo
+
+####################################### main ############################
+# getBatchEdge()
+findRadius()
