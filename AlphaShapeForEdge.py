@@ -98,7 +98,7 @@ def alpha_shape_2D(data, radius):
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] > y[i] - 2 * radius) if v == True]]
 
         # 测试所用
-        # if i==326:
+        # if i==69:
         #     print(i)
 
         """ i_range 是可能与当前点的连线组成边界线的备选点集"""
@@ -192,7 +192,7 @@ def alpha_shape_2D(data, radius):
 
                 # if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 :
                 if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:  # 边界点个数达到总
-                    if edge_len - edge_x.index(x[k]) > count * 0.05:  # 边界点总数达到一定数量后才可能到达结束点
+                    if edge_len - edge_x.index(x[k]) > count * 0.03:  # 边界点总数达到一定数量后才可能到达结束点
                         temp_k = count
                     else:
                         continue
@@ -237,9 +237,9 @@ def GetData(path):
     return data
 
 
-def getBatchEdge(radius=8):
+def getBatchEdge(radius=6.625):
     """
-    批量获得边界点
+    批量获得边界点 radius=6.625最优
     :return:
     """
     rootpath = 'D:/mmm/轨迹数据集/地块/按作业模式分类/梭行法/鱼尾转弯/csv'
@@ -251,7 +251,7 @@ def getBatchEdge(radius=8):
         path = rootpath + '/' + fn
         data = GetData(path)
 
-        edgePath = rootpath + '/edge'
+        edgePath = rootpath + '/edge-R=6625'
         if not os.path.exists(edgePath):
             os.mkdir(edgePath)
         path = edgePath + '/' + fn.split('.')[0] + '-edge'
@@ -268,35 +268,14 @@ def getBatchEdge(radius=8):
         info.loc[t] = [fn, len(edge_x), data.shape[0], end - start]
         t = t + 1
 
-        " 这一段是标记每个点的坐标"
-        # i=0
-        # while i <len(data.x):
-        #     plt.text(data.x[i],data.y[i],i,ha='center',va='bottom',fontsize=8,color='b')
-        #     i+=1
-        "结束"
-
-        imagePath = rootpath + '/image'
+        imagePath = rootpath + '/image-R=6625'
         if not os.path.exists(imagePath):
             os.mkdir(imagePath)
         path = imagePath + '/' + fn.split('.')[0] + '-image.png'
 
         plotEdge(data.x, data.y, edge_x, edge_y, path)
-        # 标志点坐标
-        # i = 0
-        # while i < len(edge_x):
-        #     plt.text(edge_x[i], edge_y[i], i, ha='center', va='bottom', fontsize=11, color='b')
-        #     i += 1
-        #
-        # plt.plot(data.x, data.y, 'bo-', color='k', linewidth=1, markersize=2)
-        # plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
-        #
-        # plt.axis('off')
-        # plt.savefig(path)
-        # plt.show()
-        # plt.close()
-
         del data
-    info.to_excel(rootpath + '/info.xlsx')
+    info.to_excel(rootpath + '/AllInfo-R=6625.xlsx')
     del info
 
 
@@ -341,7 +320,7 @@ def findRadius():
     data_t = GetData(path + '/' + f_t)  # 套行
     data_s = GetData(path + '/' + f_s)  # 梭行s
     datas = [data_r,data_t,data_s]
-    radius = np.linspace(1, 10, 10)
+    radius = np.linspace(1, 10, 10)   # 设置半径的选项值
     radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时','边界占比率'])
     i = 0
     for r in radius:
