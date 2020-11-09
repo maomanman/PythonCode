@@ -120,9 +120,9 @@ def LonLatitude2WebMercator(lon, lat):
     """
     earthRad = 6378137.0
 
-    x = lon * ma.pi / 180 * earthRad
-    a = lat * ma.pi / 180
-    y = earthRad / 2 * ma.log((1.0 + ma.sin(a)) / (1.0 - ma.sin(a)))
+    x = lon * npy.pi / 180 * earthRad
+    a = lat * npy.pi / 180
+    y = earthRad / 2 * npy.log((1.0 + npy.sin(a)) / (1.0 - npy.sin(a)))
     return x, y
 
 
