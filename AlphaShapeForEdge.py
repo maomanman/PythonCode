@@ -157,7 +157,8 @@ def alpha_shape_2D(data, radius):
             inSquare = inSquare[[t for t, v in enumerate(data.loc[inSquare, 'y'] > cicle1_y - radius) if v == True]]
             if len(inSquare) != 0:
                 for j in inSquare:
-                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (x[k], y[k])) == 0:  # 点集内的点 除去当前点i 和 备选点k
+                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (
+                    x[k], y[k])) == 0:  # 点集内的点 除去当前点i 和 备选点k
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle1_x, cicle1_y))  # 计算备选点k与点集内的点的距离
@@ -171,7 +172,8 @@ def alpha_shape_2D(data, radius):
             inSquare = inSquare[[t for t, v in enumerate(data.loc[inSquare, 'y'] > cicle2_y - radius) if v == True]]
             if len(inSquare) != 0:
                 for j in inSquare:  # 与原两个点的坐标点一样
-                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (x[k], y[k])) == 0:
+                    if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]),
+                                                                                                 (x[k], y[k])) == 0:
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle2_x, cicle2_y))
@@ -242,7 +244,7 @@ def getBatchEdge(radius=6.625):
     批量获得边界点 radius=6.625最优
     :return:
     """
-    rootpath = 'D:/mmm/轨迹数据集/地块/按作业模式分类/梭行法/鱼尾转弯/csv'
+    rootpath = 'D:/mmm/python/轨迹测试数据/109-多边界优化'
     fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.csv'))
     info = pda.DataFrame(columns=['filename', 'edgeNum', 'pointNum', '耗时'])
     t = 0
@@ -315,27 +317,63 @@ def findRadius():
     imagepath_r = path + '/image/' + f_r.replace('.csv', '-image.png')
     imagepath_t = path + '/image/' + f_t.replace('.csv', '-image.png')
     imagepath_s = path + '/image/' + f_s.replace('.csv', '-image.png')
-    imagepath = [imagepath_r,imagepath_t,imagepath_s]
+    imagepath = [imagepath_r, imagepath_t, imagepath_s]
     data_r = GetData(path + '/' + f_r)  # 绕行
     data_t = GetData(path + '/' + f_t)  # 套行
     data_s = GetData(path + '/' + f_s)  # 梭行s
-    datas = [data_r,data_t,data_s]
-    radius = np.linspace(1, 10, 10)   # 设置半径的选项值
-    radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时','边界占比率'])
+    datas = [data_r, data_t, data_s]
+    radius = np.linspace(1, 10, 10)  # 设置半径的选项值
+    radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时', '边界占比率'])
     i = 0
     for r in radius:
-        for data,im in zip(datas,imagepath):
+        for data, im in zip(datas, imagepath):
             start = time.time()
             edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
             end = time.time()
-            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start,len(edge_x)/data.shape[0]]
+            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start, len(edge_x) / data.shape[0]]
             i += 1
             im = im.replace('.', '-' + str(r) + '.')
             plotEdge(data.x, data.y, edge_x, edge_y, im)
 
-    radiusInfo.to_excel(path+'/radiusInfo.xlsx')
+    radiusInfo.to_excel(path + '/radiusInfo.xlsx')
     del radiusInfo
 
+
+def lenthOfRoute():
+    # 计算总行程长度
+    lenthOfRouteInfo = pda.DataFrame(columns=['filename', 'edgeNum', '总行程长度', '行程长度计算时间','总作业点数','有效作业点数','有效作业率'])
+    ai = 0
+    path = 'D:/mmm/轨迹数据集/地块/按作业模式分类/just'
+    fns = [fn for fn in os.listdir(path) if fn.endswith('.csv')]
+    for fn in fns:
+        filepath = path + '/' + fn
+        data = GetData(filepath)
+
+        count = data.shape[0] - 1
+        i = 0
+        lenth = 0
+        # 总行程累计
+        start = time.time()
+        while i < count:
+            lenth += distance((data.x[i], data.y[i]), (data.x[i + 1], data.y[i + 1]))
+            i += 1
+        end = time.time()
+
+
+        # 有效作业率
+        validPoint = sum(data.loc[:,'作业深度(mm)'] >= data.loc[:,'达标标准深度(mm)'])
+        workPoint = sum(data.loc[:,'机具状态']==1)
+
+
+        lenthOfRouteInfo.loc[ai] = [fn, count, lenth, end - start,workPoint,validPoint,validPoint/workPoint]
+        ai += 1
+        del data
+
+    lenthOfRouteInfo.to_excel(path + '/lenthOfRouteInfo.xlsx')
+
+
+
 ####################################### main ############################
-getBatchEdge()
+# getBatchEdge()
 # findRadius()
+lenthOfRoute()
