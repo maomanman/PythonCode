@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Circle
 import time
 from SplitFileByMoreAttributes_20200925_v3_0 import LonLatitude2WebMercator
+from ZuoBiaoZhuanHuan import LatLon2GSXY
 
 import os
 
@@ -70,11 +71,12 @@ def distance(a, b):
     return dis
 
 
-def alpha_shape_2D(data, radius):
+def alpha_shape_2D(data, radius,plotCircleflag = 0):
     """
     alpha shapes 算法检测边缘
     :param x: 原始点坐标集 x轴
     :param y: 原始点坐标集 y轴
+    :param plotCircleflag:默认为0 不对alpha圆进行图像显示， =1 则画出alpha 圆
     :param radius: 圆半径
     :return: 边缘点集
     """
@@ -192,6 +194,14 @@ def alpha_shape_2D(data, radius):
                     edge_y.append(y[k])
                     edge.append(k)
 
+                # 画出圆
+                if b1 == False :
+                    if plotCircleflag:
+                        plotCircle(cicle1_x,cicle1_y)
+                elif b2 == False:
+                    if plotCircleflag:
+                        plotCircle(cicle2_x, cicle2_y)
+
                 # if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 :
                 if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:  # 边界点个数达到总
                     if edge_len - edge_x.index(x[k]) > count * 0.03:  # 边界点总数达到一定数量后才可能到达结束点
@@ -232,19 +242,25 @@ def GetData(path):
 
     columns = data.columns
 
-    if 'x' not in columns:
-        x, y = LonLatitude2WebMercator(data.经度, data.纬度)
-        data['x'] = x
-        data['y'] = y
+    # if 'x' not in columns:
+    #     x, y = LonLatitude2WebMercator(data.经度, data.纬度)
+    #     data['x'] = x
+    #     data['y'] = y
+
+    # 全部换成高斯坐标再重新计算
+    x, y = LatLon2GSXY(data.经度, data.纬度)
+    data['x'] = x
+    data['y'] = y
     return data
 
 
 def getBatchEdge(radius=6.625):
     """
-    批量获得边界点 radius=6.625最优
+    批量获得边界点 radius=6.625最优,遍历rootpath路径下所有csv文件，并都检测边界点保存在edgePath，以及画出点及边界保存图片在imagePath
+    使用方法:
     :return:
     """
-    rootpath = 'D:/mmm/python/轨迹测试数据/109-多边界优化'
+    rootpath = R'D:\mmm\轨迹数据集\地块\按作业模式分类\just'
     fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.csv'))
     info = pda.DataFrame(columns=['filename', 'edgeNum', 'pointNum', '耗时'])
     t = 0
@@ -253,7 +269,7 @@ def getBatchEdge(radius=6.625):
         path = rootpath + '/' + fn
         data = GetData(path)
 
-        edgePath = rootpath + '/edge-R=6625'
+        edgePath = rootpath + '/edge-GSXY-R=6625'
         if not os.path.exists(edgePath):
             os.mkdir(edgePath)
         path = edgePath + '/' + fn.split('.')[0] + '-edge'
@@ -270,18 +286,40 @@ def getBatchEdge(radius=6.625):
         info.loc[t] = [fn, len(edge_x), data.shape[0], end - start]
         t = t + 1
 
-        imagePath = rootpath + '/image-R=6625'
-        if not os.path.exists(imagePath):
-            os.mkdir(imagePath)
-        path = imagePath + '/' + fn.split('.')[0] + '-image.png'
-
-        plotEdge(data.x, data.y, edge_x, edge_y, path)
+        # imagePath = rootpath + '/image-R=6625'
+        # if not os.path.exists(imagePath):
+        #     os.mkdir(imagePath)
+        # path = imagePath + '/' + fn.split('.')[0] + '-image.png'
+        #
+        # plotEdge(data.x, data.y, edge_x, edge_y, path)
         del data
-    info.to_excel(rootpath + '/AllInfo-R=6625.xlsx')
+    info.to_excel(rootpath + '/AllInfo-GSXY-R=6625.xlsx')
     del info
 
 
-def plotEdge(data_x, data_y, edge_x, edge_y, path):
+def justShowEdge(radius=6.625):
+    """
+    获得边界点 radius=6.625最优,并进行展示，不保存
+
+    使用方法:
+    :return:
+    """
+
+    path = r'D:\mmm\python\轨迹测试数据\1104-alpha shape\新31-Y3616_2016-10-24==1023-1627-field.csv'
+    data = GetData(path)
+
+
+    start = time.time()
+    edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
+    end = time.time()
+    print('运行时间：{}'.format(end - start))
+
+    plotEdge(data.x, data.y, edge_x, edge_y)
+    del data
+
+
+
+def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
     """
     画出原始轨迹图和边界轨迹图
     :param data_x:  原始轨迹点的横坐标
@@ -296,12 +334,14 @@ def plotEdge(data_x, data_y, edge_x, edge_y, path):
     #     plt.text(edge_x[i], edge_y[i], i, ha='center', va='bottom', fontsize=11, color='b')
     #     i += 1
 
-    plt.plot(data_x, data_y, 'bo-', color='k', linewidth=1, markersize=2)
+    plt.plot(data_x, data_y, 'bo', color='k', linewidth=1, markersize=2)
     plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
 
     plt.axis('off')
-    plt.savefig(path)
-    # plt.show()
+    if path:
+        plt.savefig(path)
+    else:
+        plt.show()
     plt.close()
 
 
@@ -320,9 +360,12 @@ def findRadius():
     imagepath = [imagepath_r, imagepath_t, imagepath_s]
     data_r = GetData(path + '/' + f_r)  # 绕行
     data_t = GetData(path + '/' + f_t)  # 套行
-    data_s = GetData(path + '/' + f_s)  # 梭行s
+    data_s = GetData(path + '/' + f_s)  # 梭行
     datas = [data_r, data_t, data_s]
-    radius = np.linspace(1, 10, 10)  # 设置半径的选项值
+    # radius = np.linspace(1, 10, 10)  # 设置半径的选项值
+    # radius = np.linspace(3, 10, 15)  # 设置半径的选项值
+    # radius = np.linspace(5, 8, 16)  # 设置半径的选项值
+    radius = np.linspace(5, 5.6, 13)  # 设置半径的选项值
     radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时', '边界占比率'])
     i = 0
     for r in radius:
@@ -335,7 +378,7 @@ def findRadius():
             im = im.replace('.', '-' + str(r) + '.')
             plotEdge(data.x, data.y, edge_x, edge_y, im)
 
-    radiusInfo.to_excel(path + '/radiusInfo.xlsx')
+    radiusInfo.to_excel(path + '/radiusInfo=50-56.xlsx')
     del radiusInfo
 
 
@@ -371,9 +414,27 @@ def lenthOfRoute():
 
     lenthOfRouteInfo.to_excel(path + '/lenthOfRouteInfo.xlsx')
 
-
+def plotCircle(cicle_x,cicle_y,radius = 6.625):
+    """
+    根据圆心和半径画圆
+    :param cicle_x:  圆心横坐标
+    :param cicle_y:  圆心纵坐标
+    :param radius:  圆半径
+    :return:
+    """
+    cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.4, edgecolor='b',facecolor='None', lw=2)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
+    ax.add_patch(cir1)
+    plt.axis('scaled')
+    plt.axis('equal')
 
 ####################################### main ############################
+# 在轨迹图上画圆需要
+global fig,ax
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+
 # getBatchEdge()
-# findRadius()
-lenthOfRoute()
+findRadius()
+#lenthOfRoute()
+# justShowEdge()
