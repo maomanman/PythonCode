@@ -1,17 +1,18 @@
-import  pandas as pad
+import  pandas as pda
 import os
 import time
 import math as ma
 
 
 # 任意多边形的面积计算
-areaInfo = pad.DataFrame(columns=['filename','edgeNum','area(平方米)','area(亩)','面积计算时间'])
+areaInfo = pda.DataFrame(columns=['filename','edgeNum','area(平方米)','area(亩)','面积计算时间'])
 ai = 0
-path ='D:/mmm/轨迹数据集/地块/按作业模式分类/just/edge-R=6625'
-fns = [fn for fn in os.listdir(path) if fn.endswith('.csv')]
+path =r'D:\mmm\python\轨迹测试数据\1112-gdal'
+fns = [fn for fn in os.listdir(path) if fn.endswith('.xlsx')]
 for fn in fns :
     filepath = path + '/' + fn
-    edge = pad.read_csv(filepath)
+    print(filepath)
+    edge = pda.read_excel(filepath)
 
     count = edge.shape[0]-1
     i = 0

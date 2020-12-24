@@ -4,9 +4,8 @@ from collections import defaultdict
 import pandas as pda
 import math as ma
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse, Circle
+from matplotlib.patches import Circle
 import time
-from SplitFileByMoreAttributes_20200925_v3_0 import LonLatitude2WebMercator
 from ZuoBiaoZhuanHuan import LatLon2GSXY
 
 import os
@@ -100,7 +99,7 @@ def alpha_shape_2D(data, radius,plotCircleflag = 0):
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] > y[i] - 2 * radius) if v == True]]
 
         # 测试所用
-        # if i==69:
+        # if i==1:
         #     print(i)
 
         """ i_range 是可能与当前点的连线组成边界线的备选点集"""
@@ -305,7 +304,7 @@ def justShowEdge(radius=6.625):
     :return:
     """
 
-    path = r'D:\mmm\python\轨迹测试数据\1104-alpha shape\新31-Y3616_2016-10-24==1023-1627-field.csv'
+    path = r'D:\mmm\轨迹数据集\地块\按作业模式分类\just\皖11-2004_2016-10-04==1004-0052-field.csv'
     data = GetData(path)
 
 
@@ -414,6 +413,13 @@ def lenthOfRoute():
 
     lenthOfRouteInfo.to_excel(path + '/lenthOfRouteInfo.xlsx')
 
+def splitWorkPoint(data):
+    """
+    将一块地中的工作点和非工作点分开，根据工作状态属性
+    :param data:  需要分割的原始轨迹文件
+    :return:
+    """
+
 def plotCircle(cicle_x,cicle_y,radius = 6.625):
     """
     根据圆心和半径画圆
@@ -435,6 +441,6 @@ ax = fig.add_subplot(111)
 
 
 # getBatchEdge()
-findRadius()
+#findRadius()
 #lenthOfRoute()
-# justShowEdge()
+justShowEdge()
