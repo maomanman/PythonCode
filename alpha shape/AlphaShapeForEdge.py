@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import time
 from ZuoBiaoZhuanHuan import LatLon2GSXY
+from tkinter.filedialog import *
+import sys
+
+import tkinter as tk
 
 import os
 
@@ -70,7 +74,7 @@ def distance(a, b):
     return dis
 
 
-def alpha_shape_2D(data, radius,plotCircleflag = 0):
+def alpha_shape_2D(data, radius, plotCircleflag=0):
     """
     alpha shapes 算法检测边缘
     :param x: 原始点坐标集 x轴
@@ -159,7 +163,7 @@ def alpha_shape_2D(data, radius,plotCircleflag = 0):
             if len(inSquare) != 0:
                 for j in inSquare:
                     if j == i or j == k or distance((x[j], y[j]), (x[i], y[i])) == 0 or distance((x[j], y[j]), (
-                    x[k], y[k])) == 0:  # 点集内的点 除去当前点i 和 备选点k
+                            x[k], y[k])) == 0:  # 点集内的点 除去当前点i 和 备选点k
                         continue
                     else:
                         d = distance((x[j], y[j]), (cicle1_x, cicle1_y))  # 计算备选点k与点集内的点的距离
@@ -194,9 +198,9 @@ def alpha_shape_2D(data, radius,plotCircleflag = 0):
                     edge.append(k)
 
                 # 画出圆
-                if b1 == False :
+                if b1 == False:
                     if plotCircleflag:
-                        plotCircle(cicle1_x,cicle1_y)
+                        plotCircle(cicle1_x, cicle1_y)
                 elif b2 == False:
                     if plotCircleflag:
                         plotCircle(cicle2_x, cicle2_y)
@@ -237,7 +241,11 @@ def GetData(path):
     # data = pda.read_excel('D:/mmm/python/轨迹测试数据/1104-alpha shape/新40-60002_2016-04-21==0421-0315-filed.xlsx')
 
     # data = pda.read_csv('D:/mmm/轨迹数据集/地块/按作业模式分类/套行法/csv/皖11-2004_2016-10-04==1003-2348-field.csv')
-    data = pda.read_csv(path)
+    filetype = path.split('.')[1]
+    if filetype == 'csv':
+        data = pda.read_csv(path)
+    else:
+        data = pda.read_excel(path)
 
     columns = data.columns
 
@@ -259,8 +267,8 @@ def getBatchEdge(radius=6.625):
     使用方法:
     :return:
     """
-    rootpath = R'D:\mmm\轨迹数据集\地块\按作业模式分类\just'
-    fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.csv'))
+    rootpath = R'D:\mmm\轨迹数据集\汇总'
+    fns = (fn for fn in os.listdir(rootpath) if fn.endswith('.xls'))
     info = pda.DataFrame(columns=['filename', 'edgeNum', 'pointNum', '耗时'])
     t = 0
     for fn in fns:
@@ -304,9 +312,8 @@ def justShowEdge(radius=6.625):
     :return:
     """
 
-    path = r'D:\mmm\轨迹数据集\地块\按作业模式分类\just\皖11-2004_2016-10-04==1004-0052-field.csv'
+    path = r'D:\mmm\轨迹数据集\汇总\00001 耕-大-套==黑02-452C12_2016-10-9==1009-0125.xls'
     data = GetData(path)
-
 
     start = time.time()
     edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
@@ -315,7 +322,6 @@ def justShowEdge(radius=6.625):
 
     plotEdge(data.x, data.y, edge_x, edge_y)
     del data
-
 
 
 def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
@@ -383,7 +389,7 @@ def findRadius():
 
 def lenthOfRoute():
     # 计算总行程长度
-    lenthOfRouteInfo = pda.DataFrame(columns=['filename', 'edgeNum', '总行程长度', '行程长度计算时间','总作业点数','有效作业点数','有效作业率'])
+    lenthOfRouteInfo = pda.DataFrame(columns=['filename', 'edgeNum', '总行程长度', '行程长度计算时间', '总作业点数', '有效作业点数', '有效作业率'])
     ai = 0
     path = 'D:/mmm/轨迹数据集/地块/按作业模式分类/just'
     fns = [fn for fn in os.listdir(path) if fn.endswith('.csv')]
@@ -401,17 +407,16 @@ def lenthOfRoute():
             i += 1
         end = time.time()
 
-
         # 有效作业率
-        validPoint = sum(data.loc[:,'作业深度(mm)'] >= data.loc[:,'达标标准深度(mm)'])
-        workPoint = sum(data.loc[:,'机具状态']==1)
+        validPoint = sum(data.loc[:, '作业深度(mm)'] >= data.loc[:, '达标标准深度(mm)'])
+        workPoint = sum(data.loc[:, '机具状态'] == 1)
 
-
-        lenthOfRouteInfo.loc[ai] = [fn, count, lenth, end - start,workPoint,validPoint,validPoint/workPoint]
+        lenthOfRouteInfo.loc[ai] = [fn, count, lenth, end - start, workPoint, validPoint, validPoint / workPoint]
         ai += 1
         del data
 
     lenthOfRouteInfo.to_excel(path + '/lenthOfRouteInfo.xlsx')
+
 
 def splitWorkPoint(data):
     """
@@ -420,7 +425,8 @@ def splitWorkPoint(data):
     :return:
     """
 
-def plotCircle(cicle_x,cicle_y,radius = 6.625):
+
+def plotCircle(cicle_x, cicle_y, radius=6.625):
     """
     根据圆心和半径画圆
     :param cicle_x:  圆心横坐标
@@ -428,19 +434,65 @@ def plotCircle(cicle_x,cicle_y,radius = 6.625):
     :param radius:  圆半径
     :return:
     """
-    cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.4, edgecolor='b',facecolor='None', lw=2)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
+    cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.4, edgecolor='b', facecolor='None',
+                  lw=2)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
     ax.add_patch(cir1)
     plt.axis('scaled')
     plt.axis('equal')
 
+
+def calWorkTime():
+    """
+    计算一块地的总作业时间
+    :param data: 地块作业轨迹点
+    :return: 作业总时间
+    """
+    fn = askopenfilenames(title='选择文件', filetypes=[('*', 'csv'), ('*', 'xls'), ('*', 'xlsx')])
+    if fn:
+        info=pda.DataFrame(columns=['filename','width'])
+        for f in fn:
+            # data = GetData(r'D:\mmm\轨迹数据集\汇总\00002 耕-大-梭==黑02-S45274_2017-9-21==0921-0313-filed.xls')
+            if (f.split('.')[1] == 'csv'):
+                data = pda.read_csv(f)
+            else:
+                data = pda.read_excel(f)
+            count = data.shape[0]
+            flag = 0 # 标识开始结束时间
+            sumTime = pda.to_timedelta(0)
+            for i in range(0, count - 1):  # range 包含 起点 不包含 终点
+                if flag == 0:
+                    startTime = data.loc[i, 'GPS时间']
+                    # print('start：{}  {}'.format(data.loc[i, '序列号'],startTime))
+                    flag = 1
+                if data.loc[i + 1, '序列号'] - data.loc[i, '序列号'] == 1:  # 说明轨迹点不连续
+                    if i == count - 2:
+                        endTime = data.loc[i + 1, 'GPS时间']
+                        # print('end：{} {}'.format(data.loc[i+1, '序列号'],endTime))
+                    else:
+                        continue
+                else:
+                    endTime = data.loc[i, 'GPS时间']
+                    # print('end：{} {}'.format(data.loc[i, '序列号'],endTime))
+
+                if type(startTime) == str:
+                    startTime = pda.Timestamp(startTime)
+                    endTime = pda.Timestamp(endTime)
+                sumTime = sumTime + (endTime - startTime)
+                flag = 0
+            print(sumTime)
+
+
 ####################################### main ############################
-# 在轨迹图上画圆需要
-global fig,ax
+
+
+# 在轨迹图上画圆需要 (plotCircle)  begin
+global fig, ax
 fig = plt.figure()
 ax = fig.add_subplot(111)
-
+# 在轨迹图上画圆需要 end
 
 # getBatchEdge()
-#findRadius()
-#lenthOfRoute()
-justShowEdge()
+# findRadius()
+# lenthOfRoute()
+# justShowEdge()
+calWorkTime()
