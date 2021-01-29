@@ -7,12 +7,12 @@ import math as ma
 # 任意多边形的面积计算
 areaInfo = pda.DataFrame(columns=['filename','edgeNum','area(平方米)','area(亩)','面积计算时间'])
 ai = 0
-path =r'D:\mmm\python\轨迹测试数据\1112-gdal'
-fns = [fn for fn in os.listdir(path) if fn.endswith('.xlsx')]
+path =r'D:\mmm\轨迹数据集\汇总\edge-GSXY-R=6625'
+fns = [fn for fn in os.listdir(path) if fn.endswith('.csv')]
 for fn in fns :
     filepath = path + '/' + fn
     print(filepath)
-    edge = pda.read_excel(filepath)
+    edge = pda.read_csv(filepath)
 
     count = edge.shape[0]-1
     i = 0
