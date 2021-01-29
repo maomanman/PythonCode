@@ -56,36 +56,7 @@ def readExcel():
     print(dd)
     print(dd == [])
 
-    # num = ws['D'].
-    # data=[ws['D' + str(i)].value for i in range(1, ws.max_row) ]
-    # print(ws.max_row)
-    # print('[{}]'.format(ws['D' + str(ws.max_row)].value[0:5]))
-    # print('E55:',ws['E55'].value)
-    # ws['E56']=ws.cell(row=55,column=5).value
-    # print('E56:',ws['E56'].value)
-    # for i in range(1, ws.max_row):
-    #     print('D' + str(i))
-    #     print(ws['D' + str(i)].value)
-    #     data.append(ws['D' + str(i)].value )
-    # data = ws.values
-    # cols = next(data)[1:]
-    # data = list(data)
-    # idx = [r[0] for r in data]
-    # data = (slice(r, 1, None) for r in data)\
-    # print(data)
-    # df = pd.DataFrame(data)
-    # print(df.isnull())
-    # for flag in df.isnull():
-    #     if flag:
-    #         df.dropna(axis=1,how='any',inplace=True)
-    # df.dropna(axis=0, how='any', inplace=True)
-    # print(df.shape)
-    # df.to_excel(r'D:\mmm\轨迹数据集\444.xlsx',index=False)
-    # # data = ws['D']
-    # print(ws.max_row)
-    # print(ws.values)
-    # for r in dataframe_to_rows(df, index=True, header=True):
-    #     ws.append(r)
+
     # wb.save(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
 
 
