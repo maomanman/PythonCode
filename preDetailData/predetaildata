@@ -1,0 +1,55 @@
+"""
+对原始轨迹点进行预处理操作
+1、删除重复数据
+2、标记数据丢失位置
+3、剔除属性丢失数据
+4、剔除信号漂移点
+5、剔除停歇轨迹点
+"""
+
+import pandas as pad
+
+
+class PreDetailData:
+    def __init__(self, data=pad.DataFrame()):
+        self.data = data
+
+    def delDR(self):
+        """
+        DR-duplicated records
+        根据时间记录，删除重复数据，只保留一条
+        :return:
+        """
+        # todo 完成删除重复数据的函数体
+
+    def markDatM(self):
+        """
+        DatM-data missed
+        标记数据丢失的位置
+        :return:
+        """
+        # todo 完成标记数据丢失位置的函数体
+
+    def delADatM(self):
+        """
+        ADatM-Attribute data missed
+        删除属性缺失点
+        :return:
+        """
+        # todo 完成删除属性缺失轨迹点的函数体
+
+    def delDL(self):
+        """
+        DL-data drift
+        删除信号漂移点
+        :return:
+        """
+        # todo 完成删除信号漂移点的函数体
+
+    def delStop(self):
+        """
+        删除停歇点
+        :return:
+        """
+        # todo 完成删除停歇点的函数体
+
