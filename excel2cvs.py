@@ -6,7 +6,6 @@ from tkinter.filedialog import *
 import re
 
 
-
 def changeFile(flag=1):
     """
     转换文件：
@@ -19,17 +18,17 @@ def changeFile(flag=1):
     :return:
     """
     label2.config(text='')
-    if flag == 1: #-->csv
-        openTitle='选择excel或csv文件转换成utf-8编码的csv文件'
-        selectFileTypes=[('*', 'xls'),('*','xlsx'),('*','csv')]
-    elif flag ==2 : # -->excel
+    if flag == 1:  # -->csv
+        openTitle = '选择excel或csv文件转换成utf-8编码的csv文件'
+        selectFileTypes = [('*', 'xls'), ('*', 'xlsx'), ('*', 'csv')]
+    elif flag == 2:  # -->excel
         openTitle = '选择csv文件转换excel文件'
-        selectFileTypes = [('*','csv')]
+        selectFileTypes = [('*', 'csv')]
     fn = askopenfilenames(title=openTitle, filetypes=selectFileTypes)
     if fn != '':
         for i in range(len(fn)):
             name = fn[i]
-            if flag == 1: #-->csv
+            if flag == 1:  # -->csv
                 if name.split('.')[1] == 'csv':
                     try:
                         data = pd.read_csv(name, encoding='ANSI')
@@ -46,9 +45,13 @@ def changeFile(flag=1):
                     data.insert(0, '序列号', range(1, data.shape[0] + 1))
 
                 data.set_index('序列号', inplace=True)
+                path1 = os.path.split(newName)[0] + '/csv'
+                if not os.path.exists(path1):
+                    os.mkdir(path1)
+                newName = path1 + '/' + os.path.split(newName)[1]
                 data.to_csv(newName, encoding='utf-8')
-            elif flag ==2 : # -->excel
-                if name.split('.')[1] == 'csv' :
+            elif flag == 2:  # -->excel
+                if name.split('.')[1] == 'csv':
                     try:
                         data = pd.read_csv(name, encoding='ANSI')
                     except Exception as e:
@@ -59,9 +62,13 @@ def changeFile(flag=1):
                 if '序列号' not in data.columns:
                     data.insert(0, '序列号', range(1, data.shape[0] + 1))
                 data.set_index('序列号', inplace=True)
+                path1 = os.path.split(newName)[0] + '/excel/'
+                if not os.path.exists(path1):
+                    os.mkdir(path1)
+                newName = path1 + '/' + os.path.split(newName)[1]
                 data.to_excel(newName)
             del data
-        label2.config(text='转换完成',fg='red')
+        label2.config(text='转换完成', fg='red')
 
 
 root = Tk()
@@ -73,9 +80,7 @@ label2 = Label(root, text='', height=1, width=20, fg="black")
 label2.pack()
 btn1 = Button(root, text='选择需要转换成csv文件', command=changeFile)
 btn1.pack(pady=20)
-btn2 = Button(root, text='选择需要转换excel文件', command=lambda:changeFile(2))
+btn2 = Button(root, text='选择需要转换excel文件', command=lambda: changeFile(2))
 btn2.pack(pady=10)
-
-
 
 root.mainloop()
