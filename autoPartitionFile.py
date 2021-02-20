@@ -9,11 +9,13 @@ import tkinter as tk
 
 from tkinter import ttk
 import re  # 用于字符串的多个分割符分割
-from openpyxl import load_workbook # 不改变excel样式的修改excel文件
+from openpyxl import load_workbook  # 不改变excel样式的修改excel文件
 
 from openpyxl import load_workbook
 from itertools import islice
-import difflib # 用于模糊匹配
+import difflib  # 用于模糊匹配
+
+from calWorkTime import calWorkTime
 
 """
 功能说明：
@@ -57,8 +59,6 @@ class App:
         # self.target_select.place(x=20, y=30, width=100, height=20)
         # self.target_select.bind("<<ComboboxSelected>>", self.targetSelect)
 
-
-
         label4 = tk.Label(select_file_frame, text='new index:')
         label4.place(x=130, y=15, width=80, height=13)
         self.new_file_index_text = tk.Entry(select_file_frame, font=4)
@@ -94,8 +94,7 @@ class App:
         self.county_combobox.place(x=25, y=46, width=100, height=20)
         self.county_combobox.current(0)
 
-
-        label2 = tk.Label(select_file_frame, text='old index:',fg='red')
+        label2 = tk.Label(select_file_frame, text='old index:', fg='red')
         label2.place(x=220, y=15, width=60, height=13)
         self.old = StringVar()
         self.old_file_index_text = tk.Entry(select_file_frame, font=4, textvariable=self.old)
@@ -185,6 +184,7 @@ class App:
         :return:
         """
         print(self.city_combobox.current())
+
     #     cur_select = self.target_select.current()
     #
     #     if cur_select == 0:
@@ -199,10 +199,10 @@ class App:
     #         self.new_path = 'D:/mmm/轨迹数据集/第4维度-按作业模式'
     #     self.show_new_path.delete(0, END)
     #     self.show_new_path.insert(0, self.new_path)
-        # self.file_name_info = pd.read_excel('D:/mmm/轨迹数据集/汇总/file_name_info.xlsx')
-        # max_num = len(self.file_name_info) + 1
-        # # self.new_file_index_text.delete(0, END)
-        # self.new_file_index_text.insert(0, '{:0>5d}'.format(max_num))
+    # self.file_name_info = pd.read_excel('D:/mmm/轨迹数据集/汇总/file_name_info.xlsx')
+    # max_num = len(self.file_name_info) + 1
+    # # self.new_file_index_text.delete(0, END)
+    # self.new_file_index_text.insert(0, '{:0>5d}'.format(max_num))
 
     def selectFile(self):
         """
@@ -254,29 +254,28 @@ class App:
             data = (islice(r, 1, None) for r in sheet_citys)
             sheet_citys = pd.DataFrame(data, columns=cols)
 
-            strPath=self.filepath.split('/')
+            strPath = self.filepath.split('/')
             province = difflib.get_close_matches(strPath[-1], sheet_provinces, 1, cutoff=0.5)
-            if  province==[]: # strPath[-1]  not in sheet_provinces: # 省
+            if province == []:  # strPath[-1]  not in sheet_provinces: # 省
                 city = difflib.get_close_matches(strPath[-1], sheet_citys[:].values, 1, cutoff=0.5)
-                if strPath[-1]  in sheet_citys[:].values: # 市
-                    self.city_combobox.delete(0,END)
-                    self.city_combobox.insert(0,strPath[-1]) # 倒数 第一个是 市集
-                    self.province_combobox.delete(0,END)
-                    self.province_combobox.insert(0,strPath[-2]) # 倒数 第二个是 省级
-                    self.county_combobox.delete(0,END) # 没有县级
+                if strPath[-1] in sheet_citys[:].values:  # 市
+                    self.city_combobox.delete(0, END)
+                    self.city_combobox.insert(0, strPath[-1])  # 倒数 第一个是 市集
+                    self.province_combobox.delete(0, END)
+                    self.province_combobox.insert(0, strPath[-2])  # 倒数 第二个是 省级
+                    self.county_combobox.delete(0, END)  # 没有县级
                 else:
                     self.county_combobox.delete(0, END)
-                    self.county_combobox.insert(0, strPath[-1]) # 倒数 第一个是 县集
+                    self.county_combobox.insert(0, strPath[-1])  # 倒数 第一个是 县集
                     self.city_combobox.delete(0, END)
                     self.city_combobox.insert(0, strPath[-2])  # 倒数 第二个是 市集
                     self.province_combobox.delete(0, END)
-                    self.province_combobox.insert(0, strPath[-3]) # 倒数 第三个是 省集
+                    self.province_combobox.insert(0, strPath[-3])  # 倒数 第三个是 省集
             else:
-                self.province_combobox.delete(0,END)
-                self.province_combobox.insert(0,province[0])
+                self.province_combobox.delete(0, END)
+                self.province_combobox.insert(0, province[0])
                 self.county_combobox.delete(0, END)
                 self.city_combobox.delete(0, END)
-
 
     def selectEnd(self):
         """
@@ -312,8 +311,8 @@ class App:
         # self.show_index.insert("1", '这是一个测试\n')
         print(self.city_combobox.current())
         print(self.city_combobox.get())
-        self.county_combobox.delete(0,END)
-        self.county_combobox.insert(0,'自动输入')
+        self.county_combobox.delete(0, END)
+        self.county_combobox.insert(0, '自动输入')
         # todo 完成导入分段文件的函数处理
 
     def patitionFileOk(self):
@@ -332,18 +331,24 @@ class App:
         filedIndex = self._str2list(filedIndex)
         roadIndex = self._str2list(roadIndex)
 
-        newFiledFileName = self._patitionFile(filedIndex)
-        newRoadFileName = self._patitionFile(roadIndex, flag=0)
+        FiledFlag = self._patitionFile(filedIndex)
 
-        # 将旧文件进行重命名
-        old_index = self.old_file_index_text.get()
-        os.rename(self.filepath + '/' + self.filename, self.filepath + '/' + old_index + '-' + self.filename)
-        self.old.set('{:0>3d}'.format(int(old_index) + 1))
-        # self.file_total_info_xlsx.save()
-        self.wb.save(r'D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
-        # self.file_name_info.to_excel(self.new_path+'\\file_name_info.xlsx',index=False)
+        if FiledFlag:
+            RoadFlag = self._patitionFile(roadIndex, flag=0)
+            if RoadFlag:
+                # 将旧文件进行重命名
+                old_index = self.old_file_index_text.get()
+                os.rename(self.filepath + '/' + self.filename, self.filepath + '/' + old_index + '-' + self.filename)
+                self.old.set('{:0>3d}'.format(int(old_index) + 1))
+                # self.file_total_info_xlsx.save()
+                self.wb.save(r'D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+                # self.file_name_info.to_excel(self.new_path+'\\file_name_info.xlsx',index=False)
 
-        tkm.showinfo('提示', '分割成功')
+                tkm.showinfo('提示', '分割成功')
+            else:
+                tkm.showinfo("提示", '道路分割失败')
+        else:
+            tkm.showinfo("提示", '地块分割失败')
 
     def _str2list(self, s):
         """
@@ -409,27 +414,36 @@ class App:
                 if flag == 1:  # 地块轨迹文件名
                     new_index = self.new_file_index_text.get()
                     name = new_index + ' ' + self.type_select.get() + '-' + self.area_select.get() + '-' + self.mode_select.get() + '==' + self.filename2 + '==' + date + '-' + time + '-filed'
-                    self.new_file_index_text.delete(0,END)
-                    self.new_file_index_text.insert(0,'{:0>5d}'.format(int(new_index) + 1))
-                    #将新文件名登记到 轨迹索引表中
-                    self.file_total_info_xlsx['D'+str((int(new_index) + 2))]=name+'.xlsx'   # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
+                    self.new_file_index_text.delete(0, END)
+                    self.new_file_index_text.insert(0, '{:0>5d}'.format(int(new_index) + 1))
+                    # 将新文件名登记到 轨迹索引表中
+                    self.file_total_info_xlsx[
+                        'D' + str((int(new_index) + 2))] = name + '.xlsx'  # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
                     # 添加 将文件名 拆解的函数
                     excelE = '=LEFT(D{},5)'.format(str((int(new_index) + 2)))
-                    self.file_total_info_xlsx['E' + str((int(new_index) + 2))]=excelE
-                    excelF='=MID(D{},7,1)'.format(str((int(new_index) + 2)))
+                    self.file_total_info_xlsx['E' + str((int(new_index) + 2))] = excelE
+                    excelF = '=MID(D{},7,1)'.format(str((int(new_index) + 2)))
                     self.file_total_info_xlsx['F' + str((int(new_index) + 2))] = excelF
-                    excelG='=SWITCH(MID(D{},9,1),"大","大块面积","中","中等面积","小","小块面积","-","计算错误","=","计算错误")'.format(str((int(new_index) + 2)))
+                    excelG = '=SWITCH(MID(D{},9,1),"大","大块面积","中","中等面积","小","小块面积","-","计算错误","=","计算错误")'.format(
+                        str((int(new_index) + 2)))
                     self.file_total_info_xlsx['G' + str((int(new_index) + 2))] = excelG
-                    excelH='=SWITCH(MID(D{},11,1),"套","套行法","绕","绕行法","梭","梭行法","-","计算错误","=","计算错误")'.format(str((int(new_index) + 2)))
+                    excelH = '=SWITCH(MID(D{},11,1),"套","套行法","绕","绕行法","梭","梭行法","-","计算错误","=","计算错误")'.format(
+                        str((int(new_index) + 2)))
                     self.file_total_info_xlsx['H' + str((int(new_index) + 2))] = excelH
-                    self.file_total_info_xlsx['A' + str((int(new_index) + 2))]=self.province_combobox.get()
+                    self.file_total_info_xlsx['A' + str((int(new_index) + 2))] = self.province_combobox.get()
                     self.file_total_info_xlsx['B' + str((int(new_index) + 2))] = self.city_combobox.get()
                     self.file_total_info_xlsx['C' + str((int(new_index) + 2))] = self.county_combobox.get()
+                    # 计算工作时长和工作幅宽
+                    worktime, width = calWorkTime(newData)
+                    self.file_total_info_xlsx['L' + str((int(new_index) + 2))] = str(worktime)
+                    self.file_total_info_xlsx['M' + str((int(new_index) + 2))] = width
+                    #登记原文件序号
+                    old_index = self.old_file_index_text.get()
+                    self.file_total_info_xlsx['N' + str((int(new_index) + 2))] = old_index
 
 
                 elif flag == 0:
                     name = self.filename2 + '==' + date + '-' + time + '-road'
-
 
                 # 新文件名加入文件名集合
                 newFileName.append(name)
@@ -443,13 +457,21 @@ class App:
 
                 if flag == 1:  # 地块轨迹文件名:
                     newData.to_excel(self.new_path + '\\' + name + '.xlsx')
+
                 else:
                     newData.to_excel(r'D:\mmm\轨迹数据集\汇总\road\\' + name + '.xlsx')
             except Exception as e:
                 # print(tkinter.messagebox.showerror("Error", " " + repr(e) + os.linesep))
+
+                new_index = self.new_file_index_text.get()
+                # print(new_index)
+                self.new_file_index_text.delete(0, END)
+                self.new_file_index_text.insert(0, '{:0>5d}'.format(int(new_index) - 1))
                 tkm.showerror('分割错误', repr(e))
+                return 0
             del newData
             del name
+
 
         # 将新文件名进行显示
         if flag == 1:  # 地块轨迹文件名
@@ -462,7 +484,9 @@ class App:
             self.road_index.insert('insert', '\n\n' + '\n'.join(newFileName))
             self.road_index['state'] = 'disable'
 
-    def readDir(self,file_dir,type='xlsx'):
+        return 1
+
+    def readDir(self, file_dir, type='xlsx'):
         """
         读取目录下 指定文件类型的文件个数，及文件名，
         :param path: 待读取路径
@@ -470,23 +494,22 @@ class App:
         :return:
         """
         file_info = pd.DataFrame(columns=['filename'])
-        fn=os.listdir(file_dir)
+        fn = os.listdir(file_dir)
         count = len(fn)
-        i=0
-        for file_cur  in fn:
-            path = os.path.join(file_dir,file_cur)
+        i = 0
+        for file_cur in fn:
+            path = os.path.join(file_dir, file_cur)
             if os.path.isfile(path):
-                if file_cur!='file_name_info.xlsx':
-                    file_info.loc[i]=[file_cur]
-                    i=i+1
-        file_info.to_excel(file_dir+'\\file_name_info.xlsx',index=False)
+                if file_cur != 'file_name_info.xlsx':
+                    file_info.loc[i] = [file_cur]
+                    i = i + 1
+        file_info.to_excel(file_dir + '\\file_name_info.xlsx', index=False)
 
 
 # 创建一个toplevel的根窗口，并把他作为擦参数实例化APP对象
 root = tk.Tk()
 root.title('根据序列号分割文件')
 root.geometry("800x450+500+200")
-
 
 app = App(root)
 # 开始主事件循环
