@@ -440,6 +440,8 @@ class App:
                     #登记原文件序号
                     old_index = self.old_file_index_text.get()
                     self.file_total_info_xlsx['N' + str((int(new_index) + 2))] = old_index
+                    # 登记轨迹点个数
+                    self.file_total_info_xlsx['O' + str((int(new_index) + 2))]=newData.shape[0]
 
 
                 elif flag == 0:
