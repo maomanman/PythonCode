@@ -350,9 +350,78 @@ def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
     plt.close()
 
 
+def filesWithDifferentWidth(index_file_path):
+    """
+    根据轨迹索引文件表 找出 各个幅宽不同的，且相同幅宽中轨迹点最少的文件，
+    indexFilePath:轨迹索引文件的路径 'D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx'
+    :return:返回DataFrame(columns=['文件名称', '幅宽', '轨迹点个数'])
+    """
+    file_path = 'D:\mmm\轨迹数据集\汇总'
+    index_file_data = pda.read_excel(index_file_path)  # 读取索引文件
+    index_file_data.sort_values(by=['幅宽\n（米）', '轨迹点个数'], inplace=True)  # 根据幅宽排序（按幅宽从小到大排序）
+    index_file_data.reset_index(inplace=True)
+    return_info = pda.DataFrame(columns=['文件名称', '幅宽', '轨迹点个数'])
+
+    start = 0  # 列标签占据2行
+    end = index_file_data.shape[0]
+    # i = 1
+    j = 0
+    for i in range(start, end):  # 循环查看文件
+        width = index_file_data.loc[i, '幅宽\n（米）']
+        if i == start:
+            return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽\n（米）'],
+                                  index_file_data.loc[i, '轨迹点个数']]
+            j = j + 1
+        elif width != index_file_data.loc[i - 1, '幅宽\n（米）']:
+            return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽\n（米）'],
+                                  index_file_data.loc[i, '轨迹点个数']]
+            j = j + 1
+
+    return_info.dropna(inplace=True)  # 值缺失行丢弃
+    # return_info.to_excel(r'D:\mmm\轨迹数据集\return_info.xlsx')
+    return return_info
+
+
+def findRadiusFromDifferentWidth():
+    # 找出每个幅宽下轨迹点最少的轨迹文件
+    files_data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+    path = 'D:\mmm\轨迹数据集'
+    files_data.to_excel('D:\mmm\轨迹数据集\\widthInfo.xlsx')
+    for f, w in zip(files_data.文件名称, files_data.幅宽):
+        imagepath = path + '\\image\\width-' + str(w).replace('.','-')
+        imagefile=f.split(' ')
+        imagefile[1]='-image.png'
+        imagefile=''.join(imagefile)
+        imagefilepath=imagepath+'\\'+imagefile
+        print(imagefilepath)
+        if not os.path.exists(imagepath):
+            os.makedirs(imagepath)
+            print("[{}]创建成功 ".format(imagepath))
+
+        data = GetData('D:\mmm\轨迹数据集\汇总\\' + f)
+        radius = np.round(np.arange(0.2, 10.1, 0.2), 2)  # 设置半径的选项值
+        radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时', '边界占比率'])
+        i = 0
+        for r in radius:
+            imagefilepath_r=imagefilepath
+            start = time.time()
+            edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+            end = time.time()
+            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start, len(edge_x) / data.shape[0]]
+            i += 1
+            imagefilepath_r = imagefilepath_r.replace('.','-'+str(r)+'.')
+            plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
+        radiusInfo.to_excel(path + '/radiusInfo' + str(w) + '.xlsx')
+        print("幅宽[{}]画图完成 ".format(w))
+        del radiusInfo
+        del data
+
+
+
+
 def findRadius():
     """
-    搜寻合适的圆半径
+    搜寻合适的圆半径 alpha
     :return:
     """
     path = 'D:/mmm/python/轨迹测试数据/1106-半径优化'
@@ -449,7 +518,7 @@ def calWorkTime():
     """
     fn = askopenfilenames(title='选择文件', filetypes=[('*', 'csv'), ('*', 'xls'), ('*', 'xlsx')])
     if fn:
-        info=pda.DataFrame(columns=['filename','width'])
+        info = pda.DataFrame(columns=['filename', 'width'])
         for f in fn:
             # data = GetData(r'D:\mmm\轨迹数据集\汇总\00002 耕-大-梭==黑02-S45274_2017-9-21==0921-0313-filed.xls')
             if (f.split('.')[1] == 'csv'):
@@ -457,7 +526,7 @@ def calWorkTime():
             else:
                 data = pda.read_excel(f)
             count = data.shape[0]
-            flag = 0 # 标识开始结束时间
+            flag = 0  # 标识开始结束时间
             sumTime = pda.to_timedelta(0)
             for i in range(0, count - 1):  # range 包含 起点 不包含 终点
                 if flag == 0:
@@ -494,8 +563,11 @@ ax = fig.add_subplot(111)
 # getBatchEdge()
 # findRadius()
 # lenthOfRoute()
-justShowEdge()
+# justShowEdge()
 # calWorkTime()
 
 # data = GetData(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field.csv')
 # data.to_excel(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field-2.xlsx')
+# filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+
+findRadiusFromDifferentWidth()
