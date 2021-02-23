@@ -6,7 +6,7 @@ import math as ma
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import time
-from ZuoBiaoZhuanHuan import LatLon2GSXY
+from alpha_shape.ZuoBiaoZhuanHuan import LatLon2GSXY
 from tkinter.filedialog import *
 import sys
 
