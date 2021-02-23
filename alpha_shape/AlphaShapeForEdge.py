@@ -224,9 +224,11 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
             i = i + 1
 
         # i = i + 1
-    edge_x.append(edge_x[0])
-    edge_y.append(edge_y[0])
-    edge.append(0)
+
+    if edge_x != [] or edge_y!=[]:
+        edge_x.append(edge_x[0])
+        edge_y.append(edge_y[0])
+        edge.append(0)
 
     return edge_x, edge_y, edge
 
@@ -304,7 +306,7 @@ def getBatchEdge(radius=6.625):
     del info
 
 
-def justShowEdge(radius=6.625):
+def justShowEdge(radius=0.2):
     """
     获得边界点 radius=6.625最优,并进行展示，不保存
 
@@ -312,7 +314,7 @@ def justShowEdge(radius=6.625):
     :return:
     """
 
-    path = r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field-2.xlsx'
+    path = r'D:\mmm\轨迹数据集\汇总\00035 耕-大-套==黑12-455601_2017-10-9==1010-2012-filed.xlsx'
     data = GetData(path)
 
     start = time.time()
@@ -387,13 +389,13 @@ def findRadiusFromDifferentWidth():
     files_data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
     path = 'D:\mmm\轨迹数据集'
     files_data.to_excel('D:\mmm\轨迹数据集\\widthInfo.xlsx')
-    for f, w in zip(files_data.文件名称, files_data.幅宽):
+    for f, w in zip(files_data.loc[15:17,'文件名称'], files_data.loc[15:17,'幅宽']):
         imagepath = path + '\\image\\width-' + str(w).replace('.','-')
         imagefile=f.split(' ')
         imagefile[1]='-image.png'
         imagefile=''.join(imagefile)
         imagefilepath=imagepath+'\\'+imagefile
-        print(imagefilepath)
+        # print(imagefilepath)
         if not os.path.exists(imagepath):
             os.makedirs(imagepath)
             print("[{}]创建成功 ".format(imagepath))
@@ -411,7 +413,7 @@ def findRadiusFromDifferentWidth():
             i += 1
             imagefilepath_r = imagefilepath_r.replace('.','-'+str(r)+'.')
             plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
-        radiusInfo.to_excel(path + '/radiusInfo' + str(w) + '.xlsx')
+        radiusInfo.to_excel(imagepath + '/radiusInfo' + str(w) + '.xlsx')
         print("幅宽[{}]画图完成 ".format(w))
         del radiusInfo
         del data
@@ -571,3 +573,4 @@ ax = fig.add_subplot(111)
 # filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
 
 findRadiusFromDifferentWidth()
+
