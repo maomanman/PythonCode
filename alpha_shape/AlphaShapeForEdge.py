@@ -73,6 +73,9 @@ def distance(a, b):
     dis = ma.sqrt(sum(np.power(p2 - p1, 2)))
     return dis
 
+def orderRange(x,y,i,i_range,radius):
+    t = np.abs(np.power(x[i_range]-x[i],2)+np.power(y[i_range]-y[i],2)-np.power(radius,2))
+    return list(t.sort_values().index)
 
 def alpha_shape_2D(data, radius, plotCircleflag=0):
     """
@@ -101,6 +104,8 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'x'] > x[i] - 2 * radius) if v == True]]
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] < y[i] + 2 * radius) if v == True]]
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] > y[i] - 2 * radius) if v == True]]
+
+        i_range =  orderRange(x,y,i,i_range,radius)
 
         # 测试所用
         # if i==1:
@@ -306,7 +311,7 @@ def getBatchEdge(radius=6.625):
     del info
 
 
-def justShowEdge(radius=0.2):
+def justShowEdge(radius=6.625):
     """
     获得边界点 radius=6.625最优,并进行展示，不保存
 
@@ -314,13 +319,13 @@ def justShowEdge(radius=0.2):
     :return:
     """
 
-    path = r'D:\mmm\轨迹数据集\汇总\00035 耕-大-套==黑12-455601_2017-10-9==1010-2012-filed.xlsx'
+    path = r'D:\mmm\轨迹数据集\汇总\00213 耕-小-套==鲁17_530104_2019-10-12==1011-2006-filed.xlsx'
     data = GetData(path)
 
     start = time.time()
     edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
     end = time.time()
-    print('运行时间：{}'.format(end - start))
+    print('运行时间：{:.2f} s'.format(end - start))
 
     plotEdge(data.x, data.y, edge_x, edge_y)
     del data
@@ -389,7 +394,7 @@ def findRadiusFromDifferentWidth():
     files_data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
     path = 'D:\mmm\轨迹数据集'
     files_data.to_excel('D:\mmm\轨迹数据集\\widthInfo.xlsx')
-    for f, w in zip(files_data.loc[15:17,'文件名称'], files_data.loc[15:17,'幅宽']):
+    for f, w in zip(files_data.loc[:,'文件名称'], files_data.loc[:,'幅宽']):
         imagepath = path + '\\image\\width-' + str(w).replace('.','-')
         imagefile=f.split(' ')
         imagefile[1]='-image.png'
@@ -402,23 +407,51 @@ def findRadiusFromDifferentWidth():
 
         data = GetData('D:\mmm\轨迹数据集\汇总\\' + f)
         radius = np.round(np.arange(0.2, 10.1, 0.2), 2)  # 设置半径的选项值
-        radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时', '边界占比率'])
+        radiusInfo = pda.DataFrame(columns=['radius', 'pointNum',  'edgeNum', '边界点检测耗时(s)', '地块面积（平方米）','面积计算耗时(s)'])
         i = 0
         for r in radius:
             imagefilepath_r=imagefilepath
             start = time.time()
             edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
             end = time.time()
-            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start, len(edge_x) / data.shape[0]]
+
+            area,times = calFiledArea([edge_x,edge_y]) # 根据检测出的边界点计算面积
+            radiusInfo.loc[i] = [r, data.shape[0],  len(edge_x), '{:.2f}'.format(end-start) , area,times]
             i += 1
             imagefilepath_r = imagefilepath_r.replace('.','-'+str(r)+'.')
             plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
-        radiusInfo.to_excel(imagepath + '/radiusInfo' + str(w) + '.xlsx')
+        radiusInfo.to_excel(path + '/image/radiusInfo' + str(w) + '.xlsx')
         print("幅宽[{}]画图完成 ".format(w))
         del radiusInfo
         del data
 
 
+def calFiledArea(edge):
+    """
+    根据边界点 利用多边形计算公式 计算地块面积
+    :param edge: 地块边界点(默认是dataframe格式)
+    :return: 地块面积，以及面积计算时长
+    """
+    if type(edge)!= pda.pandas.core.frame.DataFrame:
+        t = pda.DataFrame(columns=['x','y'])
+        t.x=edge[0]
+        t.y=edge[1]
+        edge=t
+
+    count = edge.shape[0]-1  # 获取边界点个数
+    i = 0
+    temp = 0
+    area = 0
+    # 多边形面积计算
+    start = time.time()
+    while i < count:
+        temp += edge.x[i]* edge.y[i+1] - edge.x[i+1]*edge.y[i]
+        i += 1
+    area = 0.5 * ma.fabs(temp)  # 平方米  （多边形顶点按逆时针排列则是正值，顺时针排列则是负值）
+    end = time.time()
+    times = '{:.2f}'.format(end-start)
+
+    return area,times
 
 
 def findRadius():
@@ -573,4 +606,4 @@ ax = fig.add_subplot(111)
 # filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
 
 findRadiusFromDifferentWidth()
-
+# justShowEdge(5)
