@@ -417,31 +417,32 @@ class App:
                     self.new_file_index_text.delete(0, END)
                     self.new_file_index_text.insert(0, '{:0>5d}'.format(int(new_index) + 1))
                     # 将新文件名登记到 轨迹索引表中
+                    xlsx_row=self.file_total_info_xlsx.max_row
                     self.file_total_info_xlsx[
-                        'D' + str((int(new_index) + 2))] = name + '.xlsx'  # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
+                        'D' + str(xlsx_row + 1)] = name + '.xlsx'  # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
                     # 添加 将文件名 拆解的函数
-                    excelE = '=LEFT(D{},5)'.format(str((int(new_index) + 2)))
-                    self.file_total_info_xlsx['E' + str((int(new_index) + 2))] = excelE
-                    excelF = '=MID(D{},7,1)'.format(str((int(new_index) + 2)))
-                    self.file_total_info_xlsx['F' + str((int(new_index) + 2))] = excelF
+                    excelE = '=LEFT(D{},5)'.format(str(xlsx_row+1))
+                    self.file_total_info_xlsx['E' + str(xlsx_row+1)] = excelE
+                    excelF = '=MID(D{},7,1)'.format(str(xlsx_row+ 1))
+                    self.file_total_info_xlsx['F' + str(xlsx_row+ 1)] = excelF
                     excelG = '=SWITCH(MID(D{},9,1),"大","大块面积","中","中等面积","小","小块面积","-","计算错误","=","计算错误")'.format(
-                        str((int(new_index) + 2)))
-                    self.file_total_info_xlsx['G' + str((int(new_index) + 2))] = excelG
+                        str(xlsx_row+ 1))
+                    self.file_total_info_xlsx['G' + str(xlsx_row+ 1)] = excelG
                     excelH = '=SWITCH(MID(D{},11,1),"套","套行法","绕","绕行法","梭","梭行法","-","计算错误","=","计算错误")'.format(
-                        str((int(new_index) + 2)))
-                    self.file_total_info_xlsx['H' + str((int(new_index) + 2))] = excelH
-                    self.file_total_info_xlsx['A' + str((int(new_index) + 2))] = self.province_combobox.get()
-                    self.file_total_info_xlsx['B' + str((int(new_index) + 2))] = self.city_combobox.get()
-                    self.file_total_info_xlsx['C' + str((int(new_index) + 2))] = self.county_combobox.get()
+                        str(xlsx_row+ 1))
+                    self.file_total_info_xlsx['H' + str(xlsx_row+ 1)] = excelH
+                    self.file_total_info_xlsx['A' + str(xlsx_row+ 1)] = self.province_combobox.get()
+                    self.file_total_info_xlsx['B' + str(xlsx_row+ 1)] = self.city_combobox.get()
+                    self.file_total_info_xlsx['C' + str(xlsx_row+ 1)] = self.county_combobox.get()
                     # 计算工作时长和工作幅宽
                     worktime, width = calWorkTime(newData)
-                    self.file_total_info_xlsx['L' + str((int(new_index) + 2))] = str(worktime)
-                    self.file_total_info_xlsx['M' + str((int(new_index) + 2))] = width
+                    self.file_total_info_xlsx['L' + str(xlsx_row+ 1)] = str(worktime)
+                    self.file_total_info_xlsx['M' + str(xlsx_row+ 1)] = width
                     #登记原文件序号
                     old_index = self.old_file_index_text.get()
-                    self.file_total_info_xlsx['N' + str((int(new_index) + 2))] = old_index
+                    self.file_total_info_xlsx['N' + str(xlsx_row+ 1)] = old_index
                     # 登记轨迹点个数
-                    self.file_total_info_xlsx['O' + str((int(new_index) + 2))]=newData.shape[0]
+                    self.file_total_info_xlsx['O' + str(xlsx_row+ 1)]=newData.shape[0]
 
 
                 elif flag == 0:
