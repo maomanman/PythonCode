@@ -205,10 +205,10 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
                 # 画出圆
                 if b1 == False:
                     if plotCircleflag:
-                        plotCircle(cicle1_x, cicle1_y)
+                        plotCircle(cicle1_x, cicle1_y,radius)
                 elif b2 == False:
                     if plotCircleflag:
-                        plotCircle(cicle2_x, cicle2_y)
+                        plotCircle(cicle2_x, cicle2_y,radius)
 
                 # if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 :
                 if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:  # 边界点个数达到总
@@ -538,11 +538,15 @@ def plotCircle(cicle_x, cicle_y, radius=6.625):
     :param radius:  圆半径
     :return:
     """
-    cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.4, edgecolor='b', facecolor='None',
-                  lw=2)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
+    color_type=['C1','C2','C3','C4','C5','C6','C7','C8','C9','C10','C11','C12','C13','C14','C15','C16','C17','C18','C19','C20']
+    t=np.random.randint(0,20)
+    cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.5, edgecolor=color_type[t], facecolor='None',
+                  lw=1)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
     ax.add_patch(cir1)
-    plt.axis('scaled')
-    plt.axis('equal')
+    # plt.axis('scaled') #通过更改绘图框的尺寸设置相等的缩放比例（即，使圆成为圆形）
+    plt.axis('equal') #通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
+    plt.axis('off')
+
 
 
 def calWorkTime():
