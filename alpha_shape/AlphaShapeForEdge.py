@@ -105,7 +105,7 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] < y[i] + 2 * radius) if v == True]]
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] > y[i] - 2 * radius) if v == True]]
 
-        i_range =  orderRange(x,y,i,i_range,radius)
+        # i_range =  orderRange(x,y,i,i_range,radius)
 
         # 测试所用
         # if i==1:
@@ -311,7 +311,7 @@ def getBatchEdge(radius=6.625):
     del info
 
 
-def justShowEdge(radius=6.625):
+def justShowEdge(path,radius=6.625):
     """
     获得边界点 radius=6.625最优,并进行展示，不保存
 
@@ -319,7 +319,7 @@ def justShowEdge(radius=6.625):
     :return:
     """
 
-    path = r'D:\mmm\轨迹数据集\汇总\00213 耕-小-套==鲁17_530104_2019-10-12==1011-2006-filed.xlsx'
+
     data = GetData(path)
 
     start = time.time()
@@ -365,24 +365,63 @@ def filesWithDifferentWidth(index_file_path):
     """
     file_path = 'D:\mmm\轨迹数据集\汇总'
     index_file_data = pda.read_excel(index_file_path)  # 读取索引文件
-    index_file_data.sort_values(by=['幅宽\n（米）', '轨迹点个数'], inplace=True)  # 根据幅宽排序（按幅宽从小到大排序）
+    index_file_data.rename(columns={'幅宽\n（米）':"幅宽"},inplace=True)
+    index_file_data.sort_values(by=['幅宽', '轨迹点个数'], inplace=True)  # 根据幅宽排序（按幅宽从小到大排序）
     index_file_data.reset_index(inplace=True)
     return_info = pda.DataFrame(columns=['文件名称', '幅宽', '轨迹点个数'])
 
     start = 0  # 列标签占据2行
     end = index_file_data.shape[0]
-    # i = 1
     j = 0
-    for i in range(start, end):  # 循环查看文件
-        width = index_file_data.loc[i, '幅宽\n（米）']
-        if i == start:
-            return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽\n（米）'],
-                                  index_file_data.loc[i, '轨迹点个数']]
-            j = j + 1
-        elif width != index_file_data.loc[i - 1, '幅宽\n（米）']:
-            return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽\n（米）'],
-                                  index_file_data.loc[i, '轨迹点个数']]
-            j = j + 1
+    # # 每个幅宽中选择 轨迹点最少的文件 begin
+    # for i in range(start, end):  # 循环查看文件
+    #     width = index_file_data.loc[i, '幅宽']
+    #     if i == start:
+    #         return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽'],
+    #                               index_file_data.loc[i, '轨迹点个数']]
+    #         j = j + 1
+    #     elif width != index_file_data.loc[i - 1, '幅宽']:
+    #         return_info.loc[j] = [index_file_data.loc[i, '文件名称'], index_file_data.loc[i, '幅宽'],
+    #                               index_file_data.loc[i, '轨迹点个数']]
+    #         j = j + 1
+    # # 每个幅宽中选择 轨迹点最少的文件 end
+
+    # # 每个幅宽中选择 轨迹点个数居中的文件 begin
+    # i = start
+    # while(i < end-1):  # 循环查看文件
+    #     width = index_file_data.loc[i, '幅宽']
+    #     points = index_file_data[index_file_data.幅宽 == width].轨迹点个数
+    #     temp = points.reset_index(drop=True)
+    #     midpoint = temp[np.floor((points.count() - 1) / 2)]
+    #     midpointindex = points[points.values == midpoint].index
+    #     return_info.loc[j] = [index_file_data.loc[midpointindex, '文件名称'].values[0], index_file_data.loc[midpointindex, '幅宽'].values[0],
+    #                           index_file_data.loc[midpointindex, '轨迹点个数'].values[0]]
+    #     j = j + 1
+    #     i = i + points.count()
+    # # 每个幅宽中选择 轨迹点个数居中的文件 end
+
+    # 每个幅宽中选择 轨迹点个数最多的文件 begin
+    # i = start
+    # while(i < end-1):  # 循环查看文件
+    #     width = index_file_data.loc[i, '幅宽']
+    #     points = index_file_data[index_file_data.幅宽 == width].轨迹点个数
+    #     temp = points.reset_index(drop=True)
+    #     # midpoint = temp[np.floor((points.count() - 1) / 2)]
+    #     maxpoint=points.max()
+    #     maxpointindex = points[points.values == maxpoint].index
+    #
+    #     return_info.loc[j] = [index_file_data.loc[maxpointindex, '文件名称'].values[0], index_file_data.loc[maxpointindex, '幅宽'].values[0],
+    #                           index_file_data.loc[maxpointindex, '轨迹点个数'].values[0]]
+    #     j = j + 1
+    #     i = i + points.count()
+    # 每个幅宽中选择 轨迹点个数最多的文件 end
+
+    #  同一个幅宽下的全量轨迹文件 begin
+    return_info =  index_file_data[['文件名称', '幅宽', '轨迹点个数']].copy()
+
+    #  同一个幅宽下的全量轨迹文件 end
+
+
 
     return_info.dropna(inplace=True)  # 值缺失行丢弃
     # return_info.to_excel(r'D:\mmm\轨迹数据集\return_info.xlsx')
@@ -393,8 +432,9 @@ def findRadiusFromDifferentWidth():
     # 找出每个幅宽下轨迹点最少的轨迹文件
     files_data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
     path = 'D:\mmm\轨迹数据集'
-    files_data.to_excel('D:\mmm\轨迹数据集\\widthInfo.xlsx')
-    for f, w in zip(files_data.loc[:,'文件名称'], files_data.loc[:,'幅宽']):
+    radata=pda.read_excel(r'D:\mmm\轨迹数据集\image-居中轨迹点文件\widthInfo.xlsx')
+
+    for f, w,a in zip(files_data.loc[:,'文件名称'], files_data.loc[:,'幅宽'],radata.loc[:,'居中轨迹点的最优半径']):
         imagepath = path + '\\image\\width-' + str(w).replace('.','-')
         imagefile=f.split(' ')
         imagefile[1]='-image.png'
@@ -406,7 +446,13 @@ def findRadiusFromDifferentWidth():
             print("[{}]创建成功 ".format(imagepath))
 
         data = GetData('D:\mmm\轨迹数据集\汇总\\' + f)
-        radius = np.round(np.arange(0.2, 10.1, 0.2), 2)  # 设置半径的选项值
+
+        # a=2
+        if a >10:
+            radius = np.round(np.arange(a, 20.1, 0.2), 2)  # 设置半径的选项值
+        else:
+            radius= np.round(np.arange(a,10, 0.2), 2)  # 设置半径的选项值
+        # radius = np.round(np.arange(0.2, 10.1, 0.2), 2)  # 设置半径的选项值
         radiusInfo = pda.DataFrame(columns=['radius', 'pointNum',  'edgeNum', '边界点检测耗时(s)', '地块面积（平方米）','面积计算耗时(s)'])
         i = 0
         for r in radius:
@@ -416,7 +462,7 @@ def findRadiusFromDifferentWidth():
             end = time.time()
 
             area,times = calFiledArea([edge_x,edge_y]) # 根据检测出的边界点计算面积
-            radiusInfo.loc[i] = [r, data.shape[0],  len(edge_x), '{:.2f}'.format(end-start) , area,times]
+            radiusInfo.loc[i] = [r, data.shape[0],  len(edge_x), round(end-start,2) , area,times]
             i += 1
             imagefilepath_r = imagefilepath_r.replace('.','-'+str(r)+'.')
             plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
@@ -424,7 +470,58 @@ def findRadiusFromDifferentWidth():
         print("幅宽[{}]画图完成 ".format(w))
         del radiusInfo
         del data
+    files_data.to_excel('D:\mmm\轨迹数据集\\widthInfo.xlsx')
 
+def findRadiusFromSameWidth():
+    # 找出每个幅宽下轨迹点最少的轨迹文件
+    files_data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+    path = 'D:\mmm\轨迹数据集'
+    # radata=pda.read_excel(r'D:\mmm\轨迹数据集\image-居中轨迹点文件\widthInfo.xlsx')
+
+    w = files_data.loc[1,'幅宽']
+    imagepath1 = path + '\\image\\' + str(w).replace('.', '-')
+    count = files_data[files_data.幅宽 == w].shape[0]
+    t=14
+    for f in files_data.loc[13:count-1,'文件名称']:
+        a = 2
+        # if a > 10:
+        #     radius = np.round(np.arange(a, 20.1, 0.2), 2)  # 设置半径的选项值
+        # else:
+        #     radius = np.round(np.arange(a, 10.1, 0.2), 2)  # 设置半径的选项值
+        radius = np.round(np.arange(a, 10.1, 0.2), 2)  # 设置半径的选项值
+        imagepath=imagepath1+'_num_' + str(t)
+
+        imagefile=f.split(' ')
+        imagefile[1]='-image.png'
+        imagefile=''.join(imagefile)
+        imagefilepath=imagepath+'\\'+imagefile
+        # print(imagefilepath)
+        if not os.path.exists(imagepath):
+            os.makedirs(imagepath)
+            print("[{}]创建成功 ".format(imagepath))
+
+        data = GetData('D:\mmm\轨迹数据集\汇总\\' + f)
+
+
+        radiusInfo = pda.DataFrame(columns=['radius', 'pointNum',  'edgeNum', '边界点检测耗时(s)', '地块面积（平方米）','面积计算耗时(s)'])
+        i = 0
+        for r in radius:
+            imagefilepath_r=imagefilepath
+            start = time.time()
+            edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+            end = time.time()
+
+            area,times = calFiledArea([edge_x,edge_y]) # 根据检测出的边界点计算面积
+            radiusInfo.loc[i] = [r, data.shape[0],  len(edge_x), round(end-start,2) , area,times]
+            i += 1
+            imagefilepath_r = imagefilepath_r.replace('.','-'+str(r)+'.')
+            plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
+        radiusInfo.to_excel(path + '/image/radiusInfo_' + str(t) + '.xlsx')
+        t = t + 1
+        print("幅宽[{}]画图完成 ".format(w))
+        del radiusInfo
+        del data
+    files_data.to_excel('D:\mmm\轨迹数据集\\image\widthInfo.xlsx')
 
 def calFiledArea(edge):
     """
@@ -449,7 +546,8 @@ def calFiledArea(edge):
         i += 1
     area = 0.5 * ma.fabs(temp)  # 平方米  （多边形顶点按逆时针排列则是正值，顺时针排列则是负值）
     end = time.time()
-    times = '{:.2f}'.format(end-start)
+    times = round(end-start,2)
+    # print(times)
 
     return area,times
 
@@ -607,7 +705,9 @@ ax = fig.add_subplot(111)
 
 # data = GetData(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field.csv')
 # data.to_excel(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field-2.xlsx')
-# filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
-
-findRadiusFromDifferentWidth()
-# justShowEdge(5)
+# data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+# data.to_excel(r'D:\mmm\轨迹数据集\widthinfo-20210303.xlsx')
+#
+# findRadiusFromDifferentWidth()
+findRadiusFromSameWidth()
+# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00033 耕-大-套==黑12-455601_2017-10-9==1009-2342-filed.xlsx', 6.4)
