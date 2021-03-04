@@ -40,10 +40,31 @@ def compareBestRadius():
         plt.savefig(path2+'/compareBestRadius-image/'+str(fk).replace('.','_')+'-times.png')
         plt.savefig(path2 + '/width-' + str(fk).replace('.', '-')+'/' + str(fk).replace('.', '_') + '-times.png')
 
+def compareBestRadiusWithSameWidth():
+
+    count = infodata.shape[0]
+    for fk in range(1,count-1):
+        name = 'radiusInfo_' + str(fk)+'.xlsx'
+        # data1=pda.read_excel(path1+'/'+name)
+        data2=pda.read_excel(path2+'/'+name)
+
+        data2.plot.line(x='radius',y='地块面积（平方米）',xticks=data2.radius,grid='on',figsize =(19.2,9.3))
+        plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
+        plt.rcParams['axes.unicode_minus'] = False  # 这两行需要手动设置
+        plt.savefig(path2+'/compareBestRadius-image/'+str(fk).replace('.','_')+'-areas.png')
+        plt.savefig(path2 + '/1-4_num_' + str(fk).replace('.', '-')+'/' + str(fk).replace('.', '_') + '-areas.png')
+
+        data2.plot.line(x='radius',y='边界点检测耗时(s)',xticks=data2.radius,grid='on',figsize =(19.2,9.3),color='red')
+        # plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
+        # plt.rcParams['axes.unicode_minus'] = False  # 这两行需要手动设置
+        plt.savefig(path2+'/compareBestRadius-image/'+str(fk).replace('.','_')+'-times.png')
+        plt.savefig(path2 + '/1-4_num_' + str(fk).replace('.', '-')+'/' + str(fk).replace('.', '_') + '-times.png')
+
 path2 = r'D:\mmm\轨迹数据集\image'
 path1 =r'D:\mmm\轨迹数据集\image-20210223'
-infoname='widthInfo.xlsx'
+infoname='widthInfo-1-4.xlsx'
 infodata = pda.read_excel(path2+'/'+infoname)
 
 # compareTime()
-compareBestRadius()
+# compareBestRadius()
+compareBestRadiusWithSameWidth()
