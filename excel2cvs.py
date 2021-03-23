@@ -27,11 +27,13 @@ def changeFile(flag=1):
     fn = askopenfilenames(title=openTitle, filetypes=selectFileTypes)
     if fn != '':
         for i in range(len(fn)):
+
             name = fn[i]
             if flag == 1:  # -->csv
                 if name.split('.')[1] == 'csv':
                     try:
-                        data = pd.read_csv(name, encoding='ANSI')
+                        # data = pd.read_csv(name, encoding='ANSI')
+                        data = pd.read_csv(name)
                     except Exception as e:
                         continue
                 elif name.split('.')[1] == 'xls' or name.split('.')[1] == 'xlsx':
@@ -39,7 +41,6 @@ def changeFile(flag=1):
                 else:
                     print("[{}]文件类型错误".format(name))
                     continue
-
                 newName = name.split('.')[0] + '.csv'
                 if '序列号' not in data.columns:
                     data.insert(0, '序列号', range(1, data.shape[0] + 1))
@@ -49,6 +50,9 @@ def changeFile(flag=1):
                 if not os.path.exists(path1):
                     os.mkdir(path1)
                 newName = path1 + '/' + os.path.split(newName)[1]
+                if '经度' in data.columns:
+                    data.rename(columns={'经度': 'x','纬度': 'y'}, inplace=True)
+                # data.rename(columns={'x': '经度', 'y': '纬度'}, inplace=True)
                 data.to_csv(newName, encoding='utf-8')
             elif flag == 2:  # -->excel
                 if name.split('.')[1] == 'csv':

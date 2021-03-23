@@ -381,6 +381,9 @@ class App:
         else:
             data = pd.read_excel(self.filepath + '/' + self.filename)
 
+        if 'x' in data.columns: # 导入QGIS时将经度纬度改成了xy，现在改回去
+            data.rename(columns={'x': '经度', 'y': '纬度'}, inplace=True)
+            
         newFileName = []  # 新文件名集合，用于最后显示的
 
         self.new_path = self.show_new_path.get()
@@ -390,6 +393,7 @@ class App:
             error_point = [int(i) for i in re.split(' |,|，', self.error_point_text.get())]
         else:
             error_point = []
+
 
         for i in range(0, len(index)):
             newData = pd.DataFrame(columns=data.columns)
