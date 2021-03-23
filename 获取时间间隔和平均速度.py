@@ -88,6 +88,6 @@ def batch_getTimeAndSpeed():
     edgeInfoData.to_excel(path)
 
 
-filepath = r'D:\mmm\轨迹数据集\汇总\00378 耕-中-套==鲁01_531538_2017-9-29==0928-2344-filed.xlsx'
+filepath = r'D:\mmm\轨迹数据集\汇总\00476 耕-大-梭==新31_998208_2016-10-8==1008-0901-filed.xlsx'
 s,t=getTimeAndSpeed(filepath)
 print(s,t)
