@@ -267,6 +267,11 @@ def GetData(path):
     x, y = LatLon2GSXY(data.经度, data.纬度)
     data['x'] = x
     data['y'] = y
+
+    # 筛选 作业状态中的点
+    data=data[data['工作状态']==True]
+    data.reset_index(drop=True,inplace=True)
+
     return data
 
 
@@ -349,6 +354,7 @@ def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
 
     plt.plot(data_x, data_y, 'bo', color='k', linewidth=1, markersize=2)
     plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
+    # plt.axis('equal')  # 通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
 
     plt.axis('off')
     if path:
@@ -1045,10 +1051,14 @@ ax = fig.add_subplot(111)
 # findRadiusFromDifferentWidth()
 # findRadiusFromSameWidth()
 # allFilesGetEdgeWithSameWidth()
-# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00476 耕-大-梭==新31_998208_2016-10-8==1008-0901-filed.xlsx', 6.244)
+justShowEdge(r'D:\mmm\轨迹数据集\汇总\00256 耕-中-梭==鲁17_530111_2019-10-15==1015-0952-filed.xlsx', 36.08)
 # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
 # test7()
 # test8()
 # test9()
-test10()
+# test10()
+#
+#
+# R=getBestRadius(GetData(r'D:\mmm\轨迹数据集\汇总\00530 耕-中-梭==新42_901117_2018-9-19==0919-1306-filed.xlsx'))
+# print(R)
