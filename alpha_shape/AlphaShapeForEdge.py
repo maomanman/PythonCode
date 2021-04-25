@@ -692,7 +692,11 @@ def getBestRadius(filedata):
     # 获取作业幅宽
     width = filedata.loc[:, '幅宽(m)'].mode()[0]
 
+    # test10 ,12
     r = -6.909 + 0.207 * width + 6.487 * speedMean + 3.855 * yangTime - 1.742 * yangTime * speedMean + 2.336 * 0.00001 * filepointCount
+
+    # 用幅宽 和 点间距 与 半径的回归方程 test11
+    # r = 0.905 + 0.721 * width + 0.273 * yangTime * speedMean
 
     return r
 
@@ -709,11 +713,84 @@ def test10():
 
 
     file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_轨迹索引-v1.0.xlsx')
-    result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径'])
+    # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径'])
+    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_result_info.xlsx')
     file_index_data.dropna()
     start_0=time.time()
     print("程序开始 {}".format(start_0))
-    for i, f in zip(file_index_data.loc[:, '新文件序号'], file_index_data.loc[:, '文件名称']):
+    for i, f in zip(file_index_data.loc[934:1071, '新文件序号'], file_index_data.loc[934:1071, '文件名称']):
+        if type(f) != str:
+            continue
+        data = GetData(filedpath + f)
+
+        iStr = '{:0>5.0f}'.format(i)
+        # 根据回归方程预测最优半径
+        r = getBestRadius(data)
+        print('{}的最优半径为：[{}]'.format(iStr,r))
+
+        # 边界检测
+        start = time.time()
+        edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+        end = time.time()
+        print('\t边界检测 完成')
+
+        # 面积计算
+        area, times = calFiledArea([edge_x, edge_y])  # 根据检测出的边界点计算面积
+        print('\t面积计算 完成')
+
+
+        # 保存边界点
+        edge_excel_name = iStr + '_edgePoint_R=' + str(round(r, 2)) + '.xlsx'
+        edge_data = pda.DataFrame({'x': edge_x, 'y': edge_y})
+        edge_data.to_excel(edge_path + edge_excel_name)
+        print('\t边界点保存 完成')
+
+        # 绘制边界图
+        imagefilepath_r = imagefilepath + iStr + '_' + 'edgeImage_R=' + str(round(r, 2)) + '.png'
+        plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
+        print('\t边界绘制 完成')
+
+        # 登记
+        result_info.loc[int(i), '文件序号'] = iStr
+        result_info.loc[int(i), 'edgeNum'] = len(edge_x)
+        result_info.loc[int(i), '边界点检测耗时'] = round(end - start, 2)
+        result_info.loc[int(i), '地块面积'] = area
+        result_info.loc[int(i), '最优半径'] = r
+
+        print('\t登记 完成')
+        del data
+        del edge_data
+
+        print('\t{}处理完毕'.format(iStr))
+
+        if i%10 == 0: # 每登记10个保存一次
+            result_info.to_excel(testpath + '/test10_result_info.xlsx')
+            print(time.time())
+
+    # result_info.set_index('序号', inplace=True)
+    result_info.to_excel(testpath + '/test10_result_info.xlsx')
+    end_0 = time.time()
+    print("程序结束 {}".format(end_0-start_0))
+
+
+def test11():
+    """
+    用带轨迹点的回归方差预测最优半径，并进行全量边界检测及面积计算
+    :return:
+    """
+    testpath = r'D:\mmm\轨迹数据集\test11'
+    filedpath = 'D:\mmm\轨迹数据集\汇总\\'
+    imagefilepath = testpath + '/image/'
+    edge_path = testpath + '/edgePoint/'
+
+
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test11\test11_轨迹索引-v1.0.xlsx')
+    # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径'])
+    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test11\test11_result_info.xlsx')
+    file_index_data.dropna()
+    start_0=time.time()
+    print("程序开始 {}".format(start_0))
+    for i, f in zip(file_index_data.loc[541:933, '新文件序号'], file_index_data.loc[541:933, '文件名称']):
         if type(f) != str:
             continue
         data = GetData(filedpath + f)
@@ -763,10 +840,80 @@ def test10():
             print(time.time())
 
     # result_info.set_index('序号', inplace=True)
-    result_info.to_excel(testpath + '/result_info.xlsx')
+    result_info.to_excel(testpath + '/test11_result_info.xlsx')
     end_0 = time.time()
     print("程序结束 {}".format(end_0-start_0))
 
+def test12():
+    """
+    用带轨迹点的回归方差预测最优半径，并进行全量边界检测及面积计算
+    :return:
+    """
+    testpath = r'D:\mmm\轨迹数据集\test10'
+    filedpath = 'D:\mmm\轨迹数据集\汇总\\'
+    imagefilepath = testpath + '/image/'
+    edge_path = testpath + '/edgePoint/'
+
+
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_轨迹索引-v1.0.xlsx')
+    # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径'])
+    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_result_info.xlsx')
+    file_index_data.dropna()
+    start_0=time.time()
+    print("程序开始 {}".format(start_0))
+    for i, f in zip(file_index_data.loc[934:1071, '新文件序号'], file_index_data.loc[934:1071, '文件名称']):
+        if type(f) != str:
+            continue
+        data = GetData(filedpath + f)
+
+        iStr = '{:0>5.0f}'.format(i)
+        # 根据回归方程预测最优半径
+        r = getBestRadius(data)
+        print('{}的最优半径为：[{}]'.format(iStr,r))
+
+        # 边界检测
+        start = time.time()
+        edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+        end = time.time()
+        print('\t边界检测 完成')
+
+        # 面积计算
+        area, times = calFiledArea([edge_x, edge_y])  # 根据检测出的边界点计算面积
+        print('\t面积计算 完成')
+
+
+        # 保存边界点
+        edge_excel_name = iStr + '_edgePoint_R=' + str(round(r, 2)) + '.xlsx'
+        edge_data = pda.DataFrame({'x': edge_x, 'y': edge_y})
+        edge_data.to_excel(edge_path + edge_excel_name)
+        print('\t边界点保存 完成')
+
+        # 绘制边界图
+        imagefilepath_r = imagefilepath + iStr + '_' + 'edgeImage_R=' + str(round(r, 2)) + '.png'
+        plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
+        print('\t边界绘制 完成')
+
+        # 登记
+        result_info.loc[int(i), '文件序号'] = iStr
+        result_info.loc[int(i), 'edgeNum'] = len(edge_x)
+        result_info.loc[int(i), '边界点检测耗时'] = round(end - start, 2)
+        result_info.loc[int(i), '地块面积'] = area
+        result_info.loc[int(i), '最优半径'] = r
+
+        print('\t登记 完成')
+        del data
+        del edge_data
+
+        print('\t{}处理完毕'.format(iStr))
+
+        if i%10 == 0: # 每登记10个保存一次
+            result_info.to_excel(testpath + '/test10_result_info.xlsx')
+            print(time.time())
+
+    # result_info.set_index('序号', inplace=True)
+    result_info.to_excel(testpath + '/test10_result_info.xlsx')
+    end_0 = time.time()
+    print("程序结束 {}".format(end_0-start_0))
 
 def allFilesGetEdgeWithSameWidth():
     # 选好最优半径后对同一幅宽的的全量文件进行边界检测
@@ -1051,13 +1198,14 @@ ax = fig.add_subplot(111)
 # findRadiusFromDifferentWidth()
 # findRadiusFromSameWidth()
 # allFilesGetEdgeWithSameWidth()
-justShowEdge(r'D:\mmm\轨迹数据集\汇总\00256 耕-中-梭==鲁17_530111_2019-10-15==1015-0952-filed.xlsx', 36.08)
+# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00142 耕-小-套==鲁16_543101_2020-11-6==1106-0200-filed.xlsx', 5.02)
 # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
 # test7()
 # test8()
 # test9()
-# test10()
+test10()
+# test11()
 #
 #
 # R=getBestRadius(GetData(r'D:\mmm\轨迹数据集\汇总\00530 耕-中-梭==新42_901117_2018-9-19==0919-1306-filed.xlsx'))
