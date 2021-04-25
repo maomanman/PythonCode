@@ -352,7 +352,7 @@ def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
     #     plt.text(edge_x[i], edge_y[i], i, ha='center', va='bottom', fontsize=11, color='b')
     #     i += 1
 
-    plt.plot(data_x, data_y, 'bo', color='k', linewidth=1, markersize=2)
+    plt.plot(data_x, data_y, 'bo-', color='k', linewidth=1, markersize=2)
     plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
     # plt.axis('equal')  # 通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
 
@@ -849,19 +849,19 @@ def test12():
     用带轨迹点的回归方差预测最优半径，并进行全量边界检测及面积计算
     :return:
     """
-    testpath = r'D:\mmm\轨迹数据集\test10'
+    testpath = r'D:\mmm\轨迹数据集\test12'
     filedpath = 'D:\mmm\轨迹数据集\汇总\\'
     imagefilepath = testpath + '/image/'
     edge_path = testpath + '/edgePoint/'
 
 
-    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_轨迹索引-v1.0.xlsx')
-    # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径'])
-    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test10\test10_result_info.xlsx')
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_轨迹索引-v1.0.xlsx')
+    result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','最优半径','图片链接'])
+    # result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test10\test12_result_info.xlsx')
     file_index_data.dropna()
     start_0=time.time()
     print("程序开始 {}".format(start_0))
-    for i, f in zip(file_index_data.loc[934:1071, '新文件序号'], file_index_data.loc[934:1071, '文件名称']):
+    for i, f in zip(file_index_data.loc[:, '新文件序号'], file_index_data.loc[:, '文件名称']):
         if type(f) != str:
             continue
         data = GetData(filedpath + f)
@@ -888,17 +888,25 @@ def test12():
         edge_data.to_excel(edge_path + edge_excel_name)
         print('\t边界点保存 完成')
 
-        # 绘制边界图
-        imagefilepath_r = imagefilepath + iStr + '_' + 'edgeImage_R=' + str(round(r, 2)) + '.png'
-        plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
-        print('\t边界绘制 完成')
-
         # 登记
         result_info.loc[int(i), '文件序号'] = iStr
         result_info.loc[int(i), 'edgeNum'] = len(edge_x)
         result_info.loc[int(i), '边界点检测耗时'] = round(end - start, 2)
         result_info.loc[int(i), '地块面积'] = area
         result_info.loc[int(i), '最优半径'] = r
+
+
+        # 绘制边界图
+        imagefilepath_r = imagefilepath + iStr + '_' + 'edgeImage_R=' + str(round(r, 2)) + '.png'
+        plotEdge(data.x, data.y, edge_x, edge_y) # 只绘制，不保存
+        saveflag=int(input('0-不保存 1-保存：'))
+
+        if(saveflag):
+            plotEdge(data.x, data.y, edge_x, edge_y, imagefilepath_r)
+            print('\t边界绘制 完成')
+            result_info.loc[int(i), '图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r,iStr+'_image')
+        else:
+            result_info.loc[int(i), '图片链接'] =''
 
         print('\t登记 完成')
         del data
@@ -907,11 +915,11 @@ def test12():
         print('\t{}处理完毕'.format(iStr))
 
         if i%10 == 0: # 每登记10个保存一次
-            result_info.to_excel(testpath + '/test10_result_info.xlsx')
+            result_info.to_excel(testpath + '/test12_result_info.xlsx')
             print(time.time())
 
     # result_info.set_index('序号', inplace=True)
-    result_info.to_excel(testpath + '/test10_result_info.xlsx')
+    result_info.to_excel(testpath + '/test12_result_info.xlsx')
     end_0 = time.time()
     print("程序结束 {}".format(end_0-start_0))
 
