@@ -918,6 +918,131 @@ def test12():
     end_0 = time.time()
     print("程序结束 {}".format(end_0 - start_0))
 
+def test12_2():
+    """
+    用带轨迹点的回归方差预测最优半径，并进行全量边界检测及面积计算
+    :return:
+    """
+    testpath = r'D:\mmm\轨迹数据集\test12'
+    filedpath = 'D:\mmm\轨迹数据集\汇总\\'
+    imagefilepath = testpath + '/test12_2/image/'
+    edge_path = testpath + '/test12_2/edgePoint/'
+
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_轨迹索引-v1.0.xlsx')
+    errEdge_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积', '最优半径', '图片链接'])
+    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_2\test12_2_pre_info.xlsx')
+    result_info.set_index('文件序号',drop=True,inplace=True)
+    file_index_data.set_index('新文件序号', drop=True, inplace=True)
+    file_index_data.dropna()
+    start_0 = time.time()
+    edgeIndex = 0
+
+    result_info = result_info[result_info['flag']==0]
+    # edgeFileList = os.listdir(r'D:\mmm\轨迹数据集\test12\edgePoint')
+
+
+    print("程序开始 {}".format(start_0))
+    for i , r in zip(result_info.index,result_info.loc[:, '最优半径']):
+        f = result_info.loc[i,'文件名称']
+        r = round(r, 2)
+
+
+        data = GetData(filedpath + f)
+        iStr = '{:0>5.0f}'.format(i)
+        print('文件[{}]开始处理'.format(iStr))
+
+        aveDis =result_info.loc[i,'平均点间距'] * 2
+        while r < aveDis:
+            r = r + 0.5
+            print('\t r = {} aveDis = {}'.format(r,aveDis))
+            start = time.time()
+            edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+            end = time.time()
+            # print('\t\t边界检测 完成')
+
+            # 面积计算
+            area, times = calFiledArea([edge_x, edge_y])  # 根据检测出的边界点计算面积
+            # print('\t\t面积计算 完成')
+
+            # 保存边界点
+            edge_excel_name = iStr + '_edgePoint_R=' + str(round(r,2) )+ '.xlsx'
+            edge_data = pda.DataFrame({'x': edge_x, 'y': edge_y})
+            edge_data.to_excel(edge_path + edge_excel_name)
+            # print('\t\t边界点保存 完成')
+
+            # 绘制边界图
+            imagefilepath_r = imagefilepath + iStr + '_' + 'edgeImage_R=' +str( round(r,2)) + '.jpg'
+            plotEdgefor12(data, edge_x, edge_y, imagefilepath_r)
+            # print('\t\t边界绘制 完成')
+
+            # 登记
+            errEdge_info.loc[edgeIndex, '文件序号'] = iStr
+            errEdge_info.loc[edgeIndex, 'edgeNum'] = len(edge_x)
+            errEdge_info.loc[edgeIndex, '边界点检测耗时'] = round(end - start, 2)
+            errEdge_info.loc[edgeIndex, '地块面积'] = area
+            errEdge_info.loc[edgeIndex, '最优半径'] = r
+            edgeIndex = edgeIndex + 1
+
+            # print('\t登记 完成')
+            # ten = ten -1
+
+        del data
+        errEdge_info.to_excel(testpath + '/test12_2/errEdge_info.xlsx')
+
+        print('\t{}处理完毕'.format(iStr))
+
+    # result_info.set_index('序号', inplace=True)
+    errEdge_info.to_excel(testpath + '/test12_2/errEdge_info.xlsx')
+    end_0 = time.time()
+    print("程序结束 {}".format(end_0 - start_0))
+
+def test12_3():
+    """
+    用带轨迹点的回归方差预测最优半径，并进行全量边界检测及面积计算
+    :return:
+    """
+    testpath = r'D:\mmm\轨迹数据集\test12'
+    filedpath = 'D:\mmm\轨迹数据集\汇总\\'
+    imagefilepath = testpath + '/image/'
+    edge_path = testpath + '/edgePoint/'
+
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_轨迹索引-v1.0.xlsx')
+    # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积', '最优半径', '图片链接'])
+    errEdge_info=pda.read_excel(r'D:\mmm\轨迹数据集\test12\errEdge_info-dell.xlsx')
+    # result_info.set_index('文件序号',drop=True,inplace=True)
+    file_index_data.set_index('新文件序号',drop=True,inplace=True)
+
+    start_0 = time.time()
+    edgeIndex = 0
+
+
+    result_info = errEdge_info[errEdge_info['图片链接']==2]
+    result_info.reset_index()
+    print("程序开始 {}".format(start_0))
+    for i ,r in zip(result_info.index,result_info.loc[:,'最优半径']):
+
+        fIndex = result_info.loc[i,'文件序号']
+        f=file_index_data.loc[fIndex,'文件名称']
+
+        print(f)
+        print(r)
+
+        data = GetData(filedpath + f)
+
+        mine = float(input("0-跳过 t = "))
+        while mine :
+            r = r+mine
+            print("\tr={}".format(r))
+            edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+
+
+            plotEdgefor12(data, edge_x, edge_y)
+            mine = float(input("0-跳过 t = "))
+
+        edgeIndex = edgeIndex +1
+
+    end_0 = time.time()
+    print("程序结束 {}".format(end_0 - start_0))
 
 def plotEdgefor12(data,  edge_x, edge_y, path=''):
     """
@@ -1260,7 +1385,7 @@ ax = fig.add_subplot(111)
 # findRadiusFromDifferentWidth()
 # findRadiusFromSameWidth()
 # allFilesGetEdgeWithSameWidth()
-# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00142 耕-小-套==鲁16_543101_2020-11-6==1106-0200-filed.xlsx', 5.02)
+# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00686 种-中-梭==辽12-40212_2019-05-02==0501-2238-filed.xlsx ', 7.85)
 # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
 # test7()
@@ -1268,8 +1393,9 @@ ax = fig.add_subplot(111)
 # test9()
 # test10()
 # test11()
-test12()
-#
+# test12()
+test12_2()
+# test12_3()
 #
 # R=getBestRadius(GetData(r'D:\mmm\轨迹数据集\汇总\00530 耕-中-梭==新42_901117_2018-9-19==0919-1306-filed.xlsx'))
 # print(R)
