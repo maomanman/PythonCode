@@ -9,6 +9,7 @@ import time
 from alpha_shape.ZuoBiaoZhuanHuan import LatLon2GSXY
 from tkinter.filedialog import *
 import sys
+from shutil import copyfile
 
 import tkinter as tk
 
@@ -93,6 +94,7 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
 
     x = data.x
     y = data.y
+    sourceIndex = data.序列号
     count = len(x)
     i = 0
     temp_k = 0
@@ -200,11 +202,13 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
                 if edge_x.count(x[i]) < 1 or edge_y.count(y[i]) < 1:  # 当前点未加入边界点集
                     edge_x.append(x[i])
                     edge_y.append(y[i])
-                    edge.append(i)
+                    # edge.append(i)
+                    edge.append(sourceIndex[i])
                 if edge_x.count(x[k]) < 1 or edge_y.count(y[k]) < 1:  # 备选点k已未加入边界点集
                     edge_x.append(x[k])
                     edge_y.append(y[k])
-                    edge.append(k)
+                    # edge.append(k)
+                    edge.append(sourceIndex[k])
 
                 # 画出圆
                 if b1 == False:
@@ -237,7 +241,8 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
     if edge_x != [] or edge_y != []:
         edge_x.append(edge_x[0])
         edge_y.append(edge_y[0])
-        edge.append(0)
+        # edge.append(0)
+        edge.append(edge[0])
 
     return edge_x, edge_y, edge
 
@@ -266,7 +271,7 @@ def GetData(path):
     #     data['y'] = y
 
     # 全部换成高斯坐标再重新计算
-    x, y = LatLon2GSXY(data.经度, data.纬度)
+    x, y = LatLon2GSXY(data.纬度, data.经度)
     data['x'] = x
     data['y'] = y
 
@@ -337,6 +342,8 @@ def justShowEdge(path, radius=6.625):
 
     plotEdge(data.x, data.y, edge_x, edge_y)
     del data
+
+
 
 
 def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
@@ -850,71 +857,104 @@ def test12():
     """
     testpath = r'D:\mmm\轨迹数据集\test12'
     filedpath = 'D:\mmm\轨迹数据集\汇总\\'
-    imagefilepath = testpath + '/imageNOT/'
+    imagefilepath = testpath + '/image/'
     edge_path = testpath + '/edgePoint/'
 
-    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_轨迹索引-v1.0.xlsx')
+    file_index_data = pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12-轨迹索引-v1.0.xlsx')
     # result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积', '最优半径', '图片链接'])
-    result_info=pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12_result_info.xlsx')
-    result_info.set_index('文件序号',drop=True,inplace=True)
-    file_index_data.dropna()
+    errEdge_info=pda.read_excel(r'D:\mmm\轨迹数据集\test12\errEdge_info.xlsx')
+    # result_info.set_index('文件序号',drop=True,inplace=True)
+    file_index_data.set_index('新文件序号',drop=True,inplace=True)
+
     start_0 = time.time()
     edgeIndex = 0
 
-    edgeFileList = os.listdir(r'D:\mmm\轨迹数据集\test12\edgePoint')
-
+    text12=pda.DataFrame(columns=['文件序号','文件名称'])
+    # edgeFileList = os.listdir(r'D:\mmm\轨迹数据集\test12\edgePoint')
+    result_info = errEdge_info[errEdge_info['图片链接']==1].copy()
+    result_info.reset_index()
     print("程序开始 {}".format(start_0))
-    for i, f in zip(file_index_data.loc[:, '新文件序号'], file_index_data.loc[:, '文件名称']):
-        if type(f) != str:
-            continue
+    for i ,r in zip(result_info.index,result_info.loc[:,'最优半径2']):
+        # if type(f) != str:
+        #     continue
+        fIndex = result_info.loc[i,'文件序号']
+        f=file_index_data.loc[fIndex,'文件名称']
+        # text12.loc[edgeIndex]=[fIndex,f]
 
+        iStr = '{:0>5.0f}'.format(fIndex)
+        #
+        # # edgeF=edgeFileList[edgeIndex]
+        # # edgeIndex = edgeIndex +1
+        print(f)
+        # print(r)
+        # print(edgeF)
+        # edge=pda.read_excel(testpath+'/edgePoint/'+edgeF)
+        # # result_info.loc[int(i), 'edgepointfile'] = edgeF
+        #
+        # # if not result_info.loc[int(i), 'flag']:
+        data = GetData(filedpath + f)
+        # #     # #
+        # # temp=edgeF.split('=')[1]
+        # mine = float(input("0-跳过 r = "))
+        # while mine :
+        #     r = r+mine
+            # print("\tr={}".format(r))
+        # 边界检测
+        start = time.time()
+        edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
+        end = time.time()
+        # print('\t边界检测 完成')
+        #
+        # 面积计算
+        area, times = calFiledArea([edge_x, edge_y])  # 根据检测出的边界点计算面积
+        # print('\t面积计算 完成')
+        #
+        # # 保存边界点
+        edge_excel_name = iStr + '_edgePoint_R=' + str(round(r, 2)) + '.xlsx'
+        edge_data = pda.DataFrame({'x': edge_x, 'y': edge_y})
+        edge_data.to_excel(edge_path + edge_excel_name)
+        # print('\t边界点保存 完成')
 
-        iStr = '{:0>5.0f}'.format(i)
+        # 绘制边界图
+        imagefilepath_r1 = imagefilepath + iStr + '_' + 'edgeImage_R=' + str(r) + '.jpg'
+        imagefilepath_r2 = testpath + '/justWorkImage/' + iStr + '_' + 'workTrajectoryImage' + '.jpg'
+        imagefilepath_r3 = testpath + '/allPointImage/' + iStr + '_' + 'moveTrajectoryImage' + '.jpg'
+        imagefilepath_r4 = testpath + '/equalImage/' + iStr + '_' + 'moveTrajectoryImage' + '.jpg'
 
-        edgeF=edgeFileList[edgeIndex]
-        edgeIndex = edgeIndex +1
-        edge=pda.read_excel(testpath+'/edgePoint/'+edgeF)
-        result_info.loc[int(i), 'edgepointfile'] = edgeF
+        # # # plotEdge(data.x, data.y, edge_x, edge_y) # 只绘制，不保存
+        # plotEdgefor12(data, edge.x, edge.y)
+        # plotEdgefor12(data, edge_x, edge_y)
+            # mine = float(input("0-跳过 r = "))
 
-        if not result_info.loc[int(i), 'flag']:
-            data = GetData(filedpath + f)
-            #
-            temp=edgeF.split('=')[1]
-            r = temp[0:-5]
+        # #
+        plotEdgefor12(data, edge_x, edge_y, imagefilepath_r1)
+        plotEdgefor12(data, edge_x, edge_y, imagefilepath_r2)
+        plotEdgefor12(data, edge_x, edge_y, imagefilepath_r3)
+        plotEdgefor12(data, edge_x, edge_y, imagefilepath_r4)
+        # # print('\t边界绘制 完成')
+        result_info.loc[i, '边界图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r1, iStr + '_edge')
+        result_info.loc[i, '工作轨迹图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r2, iStr + '_work')
+        result_info.loc[i, '运动轨迹图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r3, iStr + '_move')
+        result_info.loc[i, '运动轨迹图片链接(真)'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r4, iStr + '_equal')
+        result_info.loc[i, 'edgepoint'] = edge_excel_name
+        result_info.loc[i, '地块面积'] = area
+        result_info.loc[i, 'edgeNum'] = len(edge_x)
+        result_info.loc[i, '边界点检测耗时'] = round(end-start,2)
+        #
 
-            # 绘制边界图
-            imagefilepath_r1 = imagefilepath + iStr + '_' + 'edgeImage_R=' + r + '.jpg'
-            # imagefilepath_r2 = testpath + '/justWorkImage/' + iStr + '_' + 'workTrajectoryImage' + '.jpg'
-            # imagefilepath_r3 = testpath + '/allPointImage/' + iStr + '_' + 'moveTrajectoryImage' + '.jpg'
-            # imagefilepath_r4 = testpath + '/equalImage/' + iStr + '_' + 'moveTrajectoryImage' + '.jpg'
-
-            # plotEdge(data.x, data.y, edge_x, edge_y) # 只绘制，不保存
-            # plotEdgefor12(data, edge.x, edge.y)
-
-
-            plotEdgefor12(data, edge.x, edge.y, imagefilepath_r1)
-            # plotEdgefor12(data, edge.x, edge.y, imagefilepath_r2)
-            # plotEdgefor12(data, edge.x, edge.y, imagefilepath_r3)
-            # plotEdgefor12(data, edge.x, edge.y, imagefilepath_r4)
-            # print('\t边界绘制 完成')
-            # result_info.loc[int(i), '边界图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r1, iStr + '_edge')
-            # result_info.loc[int(i), '工作轨迹图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r2, iStr + '_work')
-            # result_info.loc[int(i), '运动轨迹图片链接'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r3, iStr + '_move')
-            # result_info.loc[int(i), '运动轨迹图片链接(真)'] = '=HYPERLINK("{}","{}")'.format(imagefilepath_r4, iStr + '_equal')
-
-
-            # print('\t登记 完成')
-            # del data
-        del edge
+        print('\t登记 完成')
+        del data
+        # del edge
 
         print('\t{}处理完毕'.format(iStr))
+        edgeIndex = edgeIndex +1
 
-        # if i % 10 == 0:  # 每登记10个保存一次
-        #     result_info.to_excel(testpath + '/test12_result_info.xlsx')
-        #     print(time.time())
+        if edgeIndex % 10 == 0:  # 每登记10个保存一次
+            result_info.to_excel(testpath + '/errEdge_info-02.xlsx')
+            print(time.time())
 
-    # result_info.set_index('序号', inplace=True)
-    # result_info.to_excel(testpath + '/test12_result_info.xlsx')
+    result_info.set_index('序号', inplace=True)
+    result_info.to_excel(testpath + '/errEdge_info-02.xlsx')
     end_0 = time.time()
     print("程序结束 {}".format(end_0 - start_0))
 
@@ -1100,7 +1140,97 @@ def plotEdgefor12(data,  edge_x, edge_y, path=''):
     plt.close()
 
 
+def test13():
+    """
+    根据计算的面积大小重命名轨迹文件名
+    :return:
+    """
+    rootPath=r'D:\mmm\轨迹数据集\test13'
+    filePath=r'D:\mmm\轨迹数据集\汇总'
 
+    # test13Data = pda.read_excel(rootPath + '/test13_图片列表.xlsx')
+    test13Data=pda.read_excel(rootPath + '/test13_轨迹索引-v1.0.xlsx')
+    #
+    fileList = os.listdir(filePath)
+    for (i,f),aresflag in zip(enumerate(test13Data.loc[:,'文件名称']),test13Data.loc[:,'备注']):
+        if f.strip()!= fileList[i]:
+            # if type(aresflag) == str:
+            #      if f[8]!=aresflag:
+            #          # test13Data.loc[i,'文件名称'] = f.replace(f[8],aresflag)
+            #          # os.rename(filePath+'/'+f,filePath+'/'+test13Data.loc[i,'文件名称'])
+            #         print('原：{}\n现：{}\n'.format(f,f.replace(f[8],aresflag)))
+            print('原：{}\n现：{}\n'.format(f,fileList[i]))
+
+    # test13Data.to_excel(rootPath + '/test13_图片列表_return.xlsx')
+
+def test14():
+    """
+    根据计算的面积大小重命名轨迹文件名
+    :return:
+    """
+    rootPath=r'D:\mmm\轨迹数据集\test14'
+    filePath=r'D:\mmm\轨迹数据集\汇总'
+    Path1=r'D:\mmm\轨迹数据集\第1维度-按作业时间'
+    Path2=r'D:\mmm\轨迹数据集\第2维度-按作业类型'
+    Path3 =r'D:\mmm\轨迹数据集\第3维度-按面积尺度'
+    Path4=r'D:\mmm\轨迹数据集\第4维度-按作业模式'
+
+    test14Data = pda.read_excel(rootPath + '/test14-轨迹索引-v1.0.xlsx')
+    # test13Data=pda.read_excel(rootPath + '/test14-轨迹索引-v1.0-return.xlsx')
+    #
+    # fileList = os.listdir(filePath)
+    for i,f in enumerate(test14Data.loc[:,'文件名称']):
+        # if f.strip()!= fileList[i]:
+        #     # if type(aresflag) == str:
+        #     #      if f[8]!=aresflag:
+        #     #          # test13Data.loc[i,'文件名称'] = f.replace(f[8],aresflag)
+        #      os.rename(filePath+'/'+fileList[i],filePath+'/'+f.strip())
+        #     #         print('原：{}\n现：{}\n'.format(f,f.replace(f[8],aresflag)))
+        #     print('原：{}\n现：{}\n'.format(f,fileList[i]))
+        # fl=list(f)
+        # fl[16]='-'
+        # f=''.join(fl)
+        # subStr= f[f.find("==")+2:f.rfind("==")]
+        # subStrList = subStr.split('-')
+        # if len(subStrList[1])>6:
+        #     continue
+        # longSL = len(subStrList[0])+len(subStrList[0])+3
+        # subList=list(f)
+        # subList[f.find("==")+2+longSL]='_'
+        # finallyStr = ''.join(subList)
+        # test13Data.loc[i, '文件名称']=finallyStr
+        # print("{} {}".format(i,finallyStr))
+        # 第一维度 按时间
+        # year = str(test14Data.loc[i,'作业年份'])
+        # month = str(test14Data.loc[i,'作业月份'])
+        # season = test14Data.loc[i,'作业季度']
+        # path = Path1+'/'+year+'/'+season+'/'+month+'月'
+        # 第一维度 end
+
+        # 第二维度 按作业类型
+        # workType = test14Data.loc[i,'作业类型']
+        # path = Path2+ '/' + workType
+        # 第二维度 按作业类型 end
+
+        # 第三维度 按面积尺度
+        # aresType = test14Data.loc[i,'面积尺度']
+        # path = Path3 + '/' + aresType
+        # 第三维度 按面积尺度 end
+
+        # 第四维度 按作业模式
+        modeType = test14Data.loc[i, '作业模式']
+        path = Path4 + '/' + modeType
+        # 第四维度 按作业模式 end
+
+        # print(path)
+        # if not os.path.exists(path):
+        #     os.makedirs(path)
+
+        # test14Data.loc[i,'文件位置']=path
+        #     print("{} {} {}".format(i,f, path))
+        copyfile(filePath+'/'+f ,path+'/'+f)
+        # print("{} {}".format(i,path))
+    # test14Data.to_excel(rootPath + '/test14-第一维度-return.xlsx')
 
 def allFilesGetEdgeWithSameWidth():
     # 选好最优半径后对同一幅宽的的全量文件进行边界检测
@@ -1174,7 +1304,7 @@ def calFiledArea(edge):
     # 多边形面积计算
     start = time.time()
     while i < count:
-        temp += edge.x[i] * edge.y[i + 1] - edge.x[i + 1] * edge.y[i]
+        temp += (edge.x[i] * edge.y[i + 1] - edge.x[i + 1] * edge.y[i])
         i += 1
     area = 0.5 * ma.fabs(temp)  # 平方米  （多边形顶点按逆时针排列则是正值，顺时针排列则是负值）
     end = time.time()
@@ -1189,35 +1319,39 @@ def findRadius():
     搜寻合适的圆半径 alpha
     :return:
     """
-    path = 'D:/mmm/python/轨迹测试数据/1106-半径优化'
-    f_r = '湘12-E1136_2016-10-13==1013-0746-field.csv'
-    f_t = '皖17-80100_2016-10-07==1006-2357-field.csv'
-    f_s = '新42-98765_2016-11-10==1109-2117-field.csv'
-    imagepath_r = path + '/image/' + f_r.replace('.csv', '-image.png')
-    imagepath_t = path + '/image/' + f_t.replace('.csv', '-image.png')
-    imagepath_s = path + '/image/' + f_s.replace('.csv', '-image.png')
-    imagepath = [imagepath_r, imagepath_t, imagepath_s]
-    data_r = GetData(path + '/' + f_r)  # 绕行
-    data_t = GetData(path + '/' + f_t)  # 套行
-    data_s = GetData(path + '/' + f_s)  # 梭行
-    datas = [data_r, data_t, data_s]
-    # radius = np.linspace(1, 10, 10)  # 设置半径的选项值
-    # radius = np.linspace(3, 10, 15)  # 设置半径的选项值
-    # radius = np.linspace(5, 8, 16)  # 设置半径的选项值
-    radius = np.linspace(5, 5.6, 13)  # 设置半径的选项值
-    radiusInfo = pda.DataFrame(columns=['radius', 'edgeNum', 'pointNum', '耗时', '边界占比率'])
-    i = 0
-    for r in radius:
-        for data, im in zip(datas, imagepath):
+    filePath = r'D:\mmm\轨迹数据集\汇总'
+    path = r'D:\mmm\轨迹数据集\test12/0428-半径优化'
+    # f_r = '湘12-E1136_2016-10-13==1013-0746-field.csv'
+    # f_t = '皖17-80100_2016-10-07==1006-2357-field.csv'
+    # f_s = '新42-98765_2016-11-10==1109-2117-field.csv'
+    errEdga_info = pda.read_excel(r'D:\mmm\轨迹数据集\test12\errEdge_info -01.xlsx')
+    file_index_data =  pda.read_excel(r'D:\mmm\轨迹数据集\test12\test12-轨迹索引-v1.0.xlsx')
+    file_index_data.set_index('新文件序号',drop=True,inplace=True)
+    radiusInfo = pda.DataFrame(columns=['文件序号','文件名称','radius', 'edgeNum', 'pointNum', '耗时'])
+
+    for findex in errEdga_info[errEdga_info['图片链接']==0].loc[:,'文件序号']:
+        fNname = file_index_data.loc[findex,'文件名称']
+        str_findex = '{:0>5.0f}'.format(findex)
+        # imagepath_r = path + '/image/' + str_findex + '-image.png'
+        data = GetData(filePath + '/' + fNname)  # 绕行
+
+
+        radius = np.linspace(1, 10, 10)  # 设置半径的选项值
+        # radius = np.linspace(3, 10, 15)  # 设置半径的选项值
+        # radius = np.linspace(5, 8, 16)  # 设置半径的选项值
+        # radius = np.linspace(5, 5.6, 13)  # 设置半径的选项值
+        i = 0
+        for r in radius:
             start = time.time()
             edge_x, edge_y, edge_index = alpha_shape_2D(data, r)
             end = time.time()
-            radiusInfo.loc[i] = [r, len(edge_x), data.shape[0], end - start, len(edge_x) / data.shape[0]]
+            radiusInfo.loc[i] = [findex,fNname,r, len(edge_x), data.shape[0], end - start]
             i += 1
-            im = im.replace('.', '-' + str(r) + '.')
-            plotEdge(data.x, data.y, edge_x, edge_y, im)
-
-    radiusInfo.to_excel(path + '/radiusInfo=50-56.xlsx')
+            imagepath = path + '/image/' + str_findex + '-image_R='+str(round(r,2)) +'.jpg'
+            plotEdgefor12(data, edge_x, edge_y, imagepath)
+        radiusInfo.to_excel(path + '/test12-radiusInfo.xlsx')
+        del data
+    radiusInfo.to_excel(path + '/test12-radiusInfo=50-56.xlsx')
     del radiusInfo
 
 
@@ -1320,6 +1454,26 @@ def calSpeedMean(path):
     edgeInfoData.set_index('index', inplace=True)
     edgeInfoData.to_excel(path)
 
+def calYangTime(filedata):
+    """
+    计算采样时间
+    :return:
+    """
+    # 计算时间间隔
+    filepointCount = filedata.shape[0]
+    for i in range(1, filepointCount):
+
+        if type(filedata.loc[i, 'GPS时间']) == str:
+            startTime = pda.Timestamp(filedata.loc[i - 1, 'GPS时间'])
+            endTime = pda.Timestamp(filedata.loc[i, 'GPS时间'])
+        else:
+            startTime = filedata.loc[i - 1, 'GPS时间']
+            endTime = filedata.loc[i, 'GPS时间']
+        filedata.loc[i, '时间间隔'] = (endTime - startTime).seconds
+
+    yangTime = filedata.时间间隔.mode()[0]
+
+    return yangTime
 
 def calWorkTime():
     """
@@ -1371,31 +1525,37 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 # 在轨迹图上画圆需要 end
 
-# getBatchEdge()
-# findRadius()
-# lenthOfRoute()
-# justShowEdge()
-# calWorkTime()
+if __name__ == '__main__':
+    # getBatchEdge()
+    # findRadius()
+    # lenthOfRoute()
+    # justShowEdge()
+    # calWorkTime()
 
-# data = GetData(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field.csv')
-# data.to_excel(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field-2.xlsx')
-# data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
-# data.to_excel(r'D:\mmm\轨迹数据集\widthinfo-20210303.xlsx')
-#
-# findRadiusFromDifferentWidth()
-# findRadiusFromSameWidth()
-# allFilesGetEdgeWithSameWidth()
-# justShowEdge(r'D:\mmm\轨迹数据集\汇总\00686 种-中-梭==辽12-40212_2019-05-02==0501-2238-filed.xlsx ', 7.85)
-# calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
+    # data = GetData(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field.csv')
+    # data.to_excel(r'D:\Downloads\湘12-E1136_2016-10-13==1013-0746-field-2.xlsx')
+    # data = filesWithDifferentWidth('D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx')
+    # data.to_excel(r'D:\mmm\轨迹数据集\widthinfo-20210303.xlsx')
+    #
+    # findRadiusFromDifferentWidth()
+    # findRadiusFromSameWidth()
+    # allFilesGetEdgeWithSameWidth()
+    # justShowEdge(r'D:\mmm\轨迹数据集\汇总\00549 耕-中-梭==新42_901117_2016-10-27==1026-2023-filed.xlsx', 6.89)
+    justShowEdge(r'D:\mmm\轨迹数据集\汇总\00140 耕-小-套==鲁16-543101_2020-11-6==1106-0140-filed.xlsx ', 5)
+    # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
-# test7()
-# test8()
-# test9()
-# test10()
-# test11()
-# test12()
-test12_2()
-# test12_3()
-#
-# R=getBestRadius(GetData(r'D:\mmm\轨迹数据集\汇总\00530 耕-中-梭==新42_901117_2018-9-19==0919-1306-filed.xlsx'))
-# print(R)
+    # test7()
+    # test8()
+    # test9()
+    # test10()
+    # test11()
+    # test12()
+    #
+    # test12()
+    # test12_2()
+    # test12_3()
+
+        # test14()
+        #
+    # R=getBestRadius(GetData(r'D:\mmm\轨迹数据集\汇总\00530 耕-中-梭==新42_901117_2018-9-19==0919-1306-filed.xlsx'))
+    # print(R)
