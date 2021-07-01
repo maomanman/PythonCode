@@ -83,7 +83,7 @@ def test15_2():
             result_info.loc[infoIndex, 'edgeNum'] = len(edge_x)
             result_info.loc[infoIndex, '边界点检测耗时'] = round(end - start, 2)
 
-            if infoIndex > 0 :
+            if infoIndex > 0 and oldArea != 0 :
                 oldArea = result_info.loc[infoIndex - 1, '地块面积']
                 if (area - oldArea)/oldArea >= 0 and  (area - oldArea)/oldArea < 0.001:
                     flag = 0
