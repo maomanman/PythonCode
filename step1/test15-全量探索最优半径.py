@@ -45,10 +45,11 @@ def test15_2():
         print('文件[{}]开始处理'.format(iStr))
 
         r = round(r + 0.5, 2)
-        print('\t r = %f' % r)
+        # print('\t r = %f' % r)
 
         flag = 1
         while flag:
+            print('\t r = %f' % r)
             start = time.time()
             edge_x, edge_y, edge_index = selfShape.alpha_shape_2D(data, r)
             end = time.time()
@@ -96,7 +97,7 @@ def test15_2():
                 result_info.to_excel(testpath + '/test15_result_info_flag1.xlsx')
 
             infoIndex = infoIndex + 1
-            print('\t r = %f'%r)
+
 
         # print('\t登记 完成')
 
