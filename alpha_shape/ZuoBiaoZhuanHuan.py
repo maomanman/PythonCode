@@ -186,12 +186,12 @@ def LatLon2GSXY(latitude, longitude):
     #将经纬度转换为弧度
     latitude2Rad = (npy.pi / 180.0) * latitude
 
-    beltNo = npy.int8((longitude + 1.5) / 3.0) #计算3度带投影度带号
+    beltNo = npy.int64((longitude + 1.5) / 3.0) #计算3度带投影度带号
     L = beltNo * 3 #计算3度带中央子午线经度
 
     # 判断是否存在 同时跨 两个3度带投影带的情况， 如果存在则 换成 6度带计算
     if beltNo[0]+1 in beltNo or beltNo[0]-1 in beltNo:
-        beltNo = npy.int8((longitude + 3) / 6)  # 计算6度带投影度带号
+        beltNo = npy.int64((longitude + 3) / 6)  # 计算6度带投影度带号
         L = beltNo * 6 #计算6度带中央子午线经度
 
     l0 = longitude - L #经差

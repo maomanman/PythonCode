@@ -325,15 +325,15 @@ def getBatchEdge(radius=6.625):
     del info
 
 
-def justShowEdge(path, radius=6.625):
+def justShowEdge(filename, radius=6.625):
     """
     获得边界点 radius=6.625最优,并进行展示，不保存
 
     使用方法:
     :return:
     """
-
-    data = GetData(path)
+    dataPath = r'D:\mmm\轨迹数据集\汇总'
+    data = GetData(dataPath + '/'+filename)
 
     start = time.time()
     edge_x, edge_y, edge_index = alpha_shape_2D(data, radius)
