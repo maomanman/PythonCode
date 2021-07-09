@@ -1541,7 +1541,7 @@ if __name__ == '__main__':
     # findRadiusFromSameWidth()
     # allFilesGetEdgeWithSameWidth()
     # justShowEdge(r'D:\mmm\轨迹数据集\汇总\00549 耕-中-梭==新42_901117_2016-10-27==1026-2023-filed.xlsx', 6.89)
-    justShowEdge(r'D:\mmm\轨迹数据集\汇总\00140 耕-小-套==鲁16-543101_2020-11-6==1106-0140-filed.xlsx ', 5)
+    justShowEdge(r'D:\mmm\轨迹数据集\汇总\00452 耕-中-梭==新31-998227_2018-4-8==0408-0606-filed.xlsx  ', 19.64)
     # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
     # test7()

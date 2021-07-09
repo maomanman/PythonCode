@@ -173,7 +173,7 @@ def pixelGetTile(pixel):
     return tile_x, tile_y
 
 
-
+# 经纬度坐标 转 高斯坐标
 def LatLon2GSXY(latitude, longitude):
     a = 6378137.0
     # b = 6356752.3142
@@ -188,6 +188,12 @@ def LatLon2GSXY(latitude, longitude):
 
     beltNo = npy.int8((longitude + 1.5) / 3.0) #计算3度带投影度带号
     L = beltNo * 3 #计算3度带中央子午线经度
+
+    # 判断是否存在 同时跨 两个3度带投影带的情况， 如果存在则 换成 6度带计算
+    if beltNo[0]+1 in beltNo or beltNo[0]-1 in beltNo:
+        beltNo = npy.int8((longitude + 3) / 6)  # 计算6度带投影度带号
+        L = beltNo * 6 #计算6度带中央子午线经度
+
     l0 = longitude - L #经差
     tsin = npy.sin(latitude2Rad)
     tcos = npy.cos(latitude2Rad)
@@ -205,6 +211,8 @@ def LatLon2GSXY(latitude, longitude):
     5.0 - 18.0 * npy.power(t, 2) + npy.power(t, 4) + 14.0 * et2 - 58.0 * et2 * npy.power(t, 2)) * npy.power(m, 5) / 120.0)
 
     return x, y
+
+
 
 
 def XY2LatLon(X, Y, L0):
@@ -253,6 +261,24 @@ def XY2LatLon(X, Y, L0):
 
     return latitude, longitude
 
+
+def duFenMiao2du(sourceFile):
+    """
+    将经纬度 度分秒 转换成 度；文件中的经纬度是由度分秒表示，且都是由符号表示，如：40°11'00.20525"
+    :param sourceFile: 带全路径的文件名源
+    :return: 返回原文件，并加入转换成度后的 经纬度
+    """
+
+    data = pda.read_csv(sourceFile)
+    for i in data.index:
+        lat = int(data.loc[i,'纬度'].split('°')[0]) + int(data.loc[i,'纬度'].split('°')[1].split('\'')[0])/60+float(data.loc[i,'纬度'].split('°')[1].split('\'')[1].split('\"')[0])/3600
+        data.loc[i, '纬度2'] = lat
+        lot = int(data.loc[i,'经度'].split('°')[0]) + int(data.loc[i,'经度'].split('°')[1].split('\'')[0])/60+float(data.loc[i,'经度'].split('°')[1].split('\'')[1].split('\"')[0])/3600
+        data.loc[i, '经度2'] = lot
+
+    return data
+
+
 #
 # print LatLon2GSXY(40.07837722329, 116.23514827596)
 # print XY2LatLon(434760.7611718801, 4438512.040474475, 117.0)
@@ -262,13 +288,7 @@ if __name__ == '__main__':
 
     # x ,y = WGS84ToGK_Single(data.loc[:,'纬度'], data.loc[:,'经度'])
 
-    x1, y1 = WGS84ToGK_Single(27.13617383, 109.7349437)
+    # x1, y1 = WGS84ToGK_Single(27.13617383, 109.7349437)
 
-    y2,x2=LatLon2GSXY(data.loc[:,'纬度'], data.loc[:,'经度'])
-    # x2, y2 = WGS84ToWebMercator_Single(27.13617383, 109.7349437)
-    gaosiXY=pda.DataFrame(columns={'x','y'})
-    gaosiXY.x=x2
-    gaosiXY.y=y2
-    gaosiXY.to_csv(r'D:\mmm\python\轨迹测试数据\1112-gdal\2004-gaosiXY.csv')
-    print("gaosi:x={},y={}".format(x1, y1))
-    print(" mkt :x={},y={}".format(x2, y2))
+
+
