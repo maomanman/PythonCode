@@ -14,18 +14,19 @@ def test15():
     最终获取边界点及边界图
     :return:
     """
-    testpath = r'D:\mmm\实验数据\test15' # 测试路径
+    testpath = r'D:\mmm\实验数据\test15-坐标转换纠正\flag=2' # 测试路径
     filedpath = 'D:\mmm\轨迹数据集\汇总\\' # 轨迹点文件存放路径
     imagefilepath = testpath + '/image/' # 边界图存放路径
     edge_path = testpath + '/edgePoint/' # 边界点存放路径
 
-    file_index_data = pda.read_excel(r'D:\mmm\实验数据\test15\test15_轨迹索引-v1.0.xlsx')
-    test15_radius_data  = pda.read_excel(r'D:\mmm\实验数据\test15\test15_alphashape_radius.xlsx')
+    file_index_data = pda.read_excel(r'D:\mmm\实验数据\test15-坐标转换纠正\flag=2\test15_轨迹索引-v1.0.xlsx')
+    test15_radius_data  = pda.read_excel(r'D:\mmm\实验数据\test15-坐标转换纠正\flag=2\test15_result_info.xlsx')
     result_info = pda.DataFrame(columns=['文件序号', 'edgeNum', '边界点检测耗时', '地块面积','地块亩数', '最优半径'])
     file_index_data.set_index('新文件序号',drop=True,inplace=True)
 
     start_0 = time.time()
 
+    test15_radius_data= test15_radius_data[test15_radius_data['边界视察']==2]
 
 
     print("程序开始 {}".format(start_0))
@@ -98,13 +99,15 @@ def test15():
 
 
         if i % 10 == 0:  # 每登记10个保存一次
-            result_info.to_excel(testpath + '/test15_result_info.xlsx')
+            result_info.to_excel(testpath + '/test15_result_info_flag2.xlsx')
 
 
 
-    result_info.to_excel(testpath + '/test15_result_info.xlsx')
+    result_info.to_excel(testpath + '/test15_result_info_flag2.xlsx')
     end_0 = time.time()
     print("程序结束 {}".format(end_0 - start_0))
+
+
 
 
 test15()

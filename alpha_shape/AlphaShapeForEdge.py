@@ -10,6 +10,7 @@ from alpha_shape.ZuoBiaoZhuanHuan import LatLon2GSXY
 from tkinter.filedialog import *
 import sys
 from shutil import copyfile
+import copy
 
 import tkinter as tk
 
@@ -75,12 +76,39 @@ def distance(a, b):
     return dis
 
 
-def orderRange(x, y, i, i_range, radius):
-    t = np.abs(np.power(x[i_range] - x[i], 2) + np.power(y[i_range] - y[i], 2) - np.power(radius, 2))
-    return list(t.sort_values().index)
+def orderRange( i, i_range):
+    """
+    采用类似二分分类的方法 对 i_range 进行排序
+    :param x:
+    :param y:
+    :param i:
+    :param i_range:
+    :param radius:
+    :return:
+    """
+    i_list = list(i_range)
+    i_index = i_list.index(i)
+
+    if i_index > 3:
+
+        if i_index+1 < len(i_range):
+            temp = copy.copy(i_range[0:3])
+            i_range[0:3] = copy.copy(i_range[i_index-1:i_index+2])
+            i_range[i_index - 1:i_index + 2] = copy.copy(temp)
+        else:
+            temp = copy.copy(i_range[0:2])
+            i_range[0:2] = copy.copy(i_range[i_index - 1:])
+            i_range[i_index - 1:] = copy.copy(temp)
+
+    elif i_index == 2 :
+        temp = copy.copy(i_range[0])
+        i_range[0] = copy.copy(i_range[3])
+        i_range[3] = copy.copy(temp)
+
+    return i_range
 
 
-def alpha_shape_2D(data, radius, plotCircleflag=0):
+def alpha_shape_2D(data, radius, plotCircleflag=1):
     """
     alpha shapes 算法检测边缘
     :param x: 原始点坐标集 x轴
@@ -111,11 +139,10 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] < y[i] + 2 * radius) if v == True]]
         i_range = i_range[[t for t, v in enumerate(data.loc[i_range, 'y'] > y[i] - 2 * radius) if v == True]]
 
-        # i_range =  orderRange(x,y,i,i_range,radius)
 
-        # 测试所用
-        # if i==1:
-        #     print(i)
+
+        # i_range =  orderRange(i,i_range)
+
 
         """ i_range 是可能与当前点的连线组成边界线的备选点集"""
         for k in i_range:
@@ -125,6 +152,8 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
                     pass
                 else:
                     continue
+            elif i==k:
+                continue
 
             # 计算 当前点 与 备选点 的距离
             dis = distance((x[i], y[i]), (x[k], y[k]))
@@ -220,7 +249,7 @@ def alpha_shape_2D(data, radius, plotCircleflag=0):
 
                 # if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0 :
                 if edge_x.index(x[k]) == 0 and edge_y.index(y[k]) == 0:  # 边界点个数达到总
-                    if edge_len - edge_x.index(x[k]) > count * 0.03:  # 边界点总数达到一定数量后才可能到达结束点
+                    if edge_len - edge_x.index(x[k]) > count * 0.03 and edge_len > 2:  # 边界点总数达到一定数量后才可能到达结束点
                         temp_k = count
                     else:
                         continue
@@ -340,7 +369,8 @@ def justShowEdge(filename, radius=6.625):
     end = time.time()
     print('运行时间：{:.2f} s'.format(end - start))
 
-    plotEdge(data.x, data.y, edge_x, edge_y)
+    # plotEdge(data.x, data.y, edge_x, edge_y)
+    plotEdgefor12(data, edge_x, edge_y)
     del data
 
 
@@ -362,9 +392,10 @@ def plotEdge(data_x, data_y, edge_x, edge_y, path=''):
     #     i += 1
 
     plt.plot(data_x, data_y, 'bo-', color='k', linewidth=1, markersize=2)
+    # plt.plot(data_x, data_y, 'bo', color='k',  markersize=2)
     plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
     # plt.axis('equal')  # 通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
-
+    # plt.savefig(r'D:\mmm\参考文献\我的小论文\小论文插图\8-alpha shape示意图.svg', format='SVG', dpi=500)
     plt.axis('off')
     if path:
         plt.savefig(path)
@@ -1084,7 +1115,7 @@ def test12_3():
     end_0 = time.time()
     print("程序结束 {}".format(end_0 - start_0))
 
-def plotEdgefor12(data,  edge_x, edge_y, path=''):
+def plotEdgefor12(data,  edge_x, edge_y, path='',imformat ='jpg'):
     """
     画出原始轨迹图和边界轨迹图
     :param data_x:  原始轨迹点的横坐标
@@ -1124,17 +1155,17 @@ def plotEdgefor12(data,  edge_x, edge_y, path=''):
         noWork = data[data['工作状态'] == False]
         work = data[data['工作状态'] == True]
         plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
-        plt.title(path.split('/')[-1])
+        # plt.title(path.split('/')[-1])
         plt.plot(data.x, data.y, '-', color='green', linewidth=1)
         plt.plot(noWork.x, noWork.y, 'bo', color='k', linewidth=1, markersize=2)
-        plt.plot(work.x, work.y, 'bo', color='pink', linewidth=1, markersize=2)
-        plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
-        plt.legend(('农机运动轨迹线', '非工作轨迹点', '工作轨迹点', '边界线'),loc='best')
+        plt.plot(work.x, work.y, 'bo', color='r', linewidth=1, markersize=2)
+        # plt.plot(edge_x, edge_y, '*-', color='r', markersize=6)
+        # plt.legend(('农机运动轨迹线', '非工作轨迹点', '工作轨迹点', '边界线'),loc='best')
         # plt.axis('equal')  # 通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
 
     plt.axis('off')
     if path:
-        plt.savefig(path,format='jpg',dpi=500)
+        plt.savefig(path,format=imformat,dpi=500)
     else:
         plt.show()
     plt.close()
@@ -1406,7 +1437,7 @@ def plotCircle(cicle_x, cicle_y, radius=6.625):
                   'C17', 'C18', 'C19', 'C20']
     t = np.random.randint(0, 20)
     cir1 = Circle(xy=(cicle_x, cicle_y), radius=radius, alpha=0.5, edgecolor=color_type[t], facecolor='None',
-                  lw=1)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
+                  lw=2)  # 第一个参数为圆心坐标，第二个为半径 #第三个为透明度（0-1）
     ax.add_patch(cir1)
     # plt.axis('scaled') #通过更改绘图框的尺寸设置相等的缩放比例（即，使圆成为圆形）
     plt.axis('equal')  # 通过更改轴限制设置相等的缩放比例（即，使圆成为圆形）
@@ -1541,7 +1572,7 @@ if __name__ == '__main__':
     # findRadiusFromSameWidth()
     # allFilesGetEdgeWithSameWidth()
     # justShowEdge(r'D:\mmm\轨迹数据集\汇总\00549 耕-中-梭==新42_901117_2016-10-27==1026-2023-filed.xlsx', 6.89)
-    justShowEdge(r'D:\mmm\轨迹数据集\汇总\00452 耕-中-梭==新31-998227_2018-4-8==0408-0606-filed.xlsx  ', 19.64)
+    justShowEdge('00274 耕-中-套==鲁17-530118_2020-9-28==0928-0630-filed.xlsx ',13.5)
     # calSpeedMean('D:\\mmm\\轨迹数据集\\image\\edgeInfo1-4.xlsx')
 
     # test7()
