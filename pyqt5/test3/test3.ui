@@ -6,22 +6,48 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
-    <height>470</height>
+    <width>1071</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTableView" name="tableView">
+   <widget class="QTableWidget" name="table">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>40</y>
-      <width>256</width>
-      <height>192</height>
+      <x>10</x>
+      <y>20</y>
+      <width>671</width>
+      <height>421</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clear_button">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>370</y>
+      <width>97</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>clear</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="load_button">
+    <property name="geometry">
+     <rect>
+      <x>890</x>
+      <y>370</y>
+      <width>97</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>load</string>
     </property>
    </widget>
   </widget>
@@ -30,7 +56,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>603</width>
+     <width>1071</width>
      <height>27</height>
     </rect>
    </property>

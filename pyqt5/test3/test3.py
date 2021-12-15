@@ -11,15 +11,23 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(603, 470)
+        MainWindow.resize(1071, 514)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.tableView = QtWidgets.QTableView(self.centralwidget)
-        self.tableView.setGeometry(QtCore.QRect(80, 40, 256, 192))
-        self.tableView.setObjectName("tableView")
+        self.table = QtWidgets.QTableWidget(self.centralwidget)
+        self.table.setGeometry(QtCore.QRect(10, 20, 671, 421))
+        self.table.setObjectName("table")
+        self.table.setColumnCount(0)
+        self.table.setRowCount(0)
+        self.clear_button = QtWidgets.QPushButton(self.centralwidget)
+        self.clear_button.setGeometry(QtCore.QRect(730, 370, 97, 29))
+        self.clear_button.setObjectName("clear_button")
+        self.load_button = QtWidgets.QPushButton(self.centralwidget)
+        self.load_button.setGeometry(QtCore.QRect(890, 370, 97, 29))
+        self.load_button.setObjectName("load_button")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 603, 27))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1071, 27))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -32,4 +40,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.clear_button.setText(_translate("MainWindow", "clear"))
+        self.load_button.setText(_translate("MainWindow", "load"))
 
