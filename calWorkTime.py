@@ -79,7 +79,8 @@ def calWorkTime(data):
     return sumTime,float(data.loc[:, '幅宽(m)'].mode())
 
 if __name__ == '__main__':
-    wb = load_workbook(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
+    path = 'D:\mmm\轨迹数据集\轨迹索引-v1.0.xlsx'
+    wb = load_workbook(path)
     wb._active_sheet_index = 0  # 此属性是用来指定读取 excel 的页
     ws = wb.active  # 读取excel数据，默认读取第0页数据，_active_sheet_index指定页后，则读取指定页的数据
     # ps=wb['汇总']
@@ -91,13 +92,13 @@ if __name__ == '__main__':
         name = ws['D'+str(i)].value
         filename = 'D:\mmm\轨迹数据集\汇总\\'+name
         data = pda.read_excel(filename) # 打开轨迹点文件
-        worktime,width = calWorkTime(data)
-        ws['L' + str(i)]=str(worktime) # 将工作时长写入索引文件
-        ws['M' + str(i)] = width # 将幅宽写汝索引文件
+        # worktime,width = calWorkTime(data)
+        # ws['L' + str(i)]=str(worktime) # 将工作时长写入索引文件
+        ws['O' + str(i)] = data.shape[0] # 将幅宽写汝索引文件
 
     # worktime,width=calWorkTime('D:\mmm\轨迹数据集\汇总\\'+ws['D53'].value)
     # ws['N53' ] = str(worktime) # 将工作时长写入索引文件
     # ws['O53'] = width  # 将幅宽写汝索引文件
     # print( worktime,width)
-    wb.save(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
+    wb.save(path)
     # print(ws.max_row,ws['D39'].value)

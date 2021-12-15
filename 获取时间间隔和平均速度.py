@@ -11,6 +11,7 @@ def getTimeAndSpeed(filepath):
     filedata = pda.read_excel(filepath)  # 读取轨迹文件
     filedata.rename(columns={'速度(km/h)': 'speed'}, inplace=True)
     workPoint = filedata[filedata.工作状态 == True]
+    # workPoint = filedata
     speedMean = workPoint.speed.sum() / workPoint.shape[0]  # 根据工作状态中的点速度求平均速度
     # fIndex = edgeInfoData[edgeInfoData.文件名==f].index
     # edgeInfoData.loc[t, vStr] = speedMean  # 登记平均速度
@@ -36,7 +37,7 @@ def batch_getTimeAndSpeed():
     批量获取采样间隔和平均速度
     :return:
     """
-    path = r'D:\mmm\轨迹数据集\test8\test8-file-index.xls'
+    path = r'D:\mmm\轨迹数据集\test9\test9-file-index.xlsx'
     edgeInfoData = pda.read_excel(path)
     datapath = r'D:\mmm\轨迹数据集\汇总'
 
@@ -72,20 +73,25 @@ def batch_getTimeAndSpeed():
     edgeInfoData.to_excel(path)
 
 
-def calBestRadius(width,speed,yangtime,pointnum):
+def calBestRadius(width,speed,yangtime,pointnum=0):
     """
     计算最优半径
     :return:
     """
 
-    # r = -6.909+0.207*width+6.487*speed+3.855*yangtime-1.742*yangtime*speed+2.336*0.00001*pointnum
+    r = -6.909+0.207*width+6.487*speed+3.855*yangtime-1.742*yangtime*speed+2.336*0.00001*pointnum
     # -7.665+0.204*width+6.641*speed+3.874*yangtime-1.912*yangtime*speed
-    r = -7.665+0.204*width+6.641*speed+3.874*yangtime-1.912*yangtime*speed
+    # r = -7.665+0.204*width+6.641*speed+3.874*yangtime-1.912*yangtime*speed
+
+    # 最优半径 与 幅宽 和 两点间的距离 的回归方程
+    # r =0.905+0.721* width +0.273*yangtime*speed
+
 
     return r
 
-# filepath = r'D:\mmm\轨迹数据集\汇总\00476 耕-大-梭==新31_998208_2016-10-8==1008-0901-filed.xlsx'
-# s,t=getTimeAndSpeed(filepath)
-# print(s,t)
-
-batch_getTimeAndSpeed()
+filepath = r'D:\mmm\轨迹数据集\汇总\00567 耕-大-梭==新40_998801_2019-10-25==1025-0626-filed.xlsx'
+s,t=getTimeAndSpeed(filepath)
+print("速度(m/s):{}\n采样间隔:{}\n平均点距离:{}".format(s,t,s*t))
+r = calBestRadius(3,s,t)
+print('半径{}'.format(r))
+# batch_getTimeAndSpeed()

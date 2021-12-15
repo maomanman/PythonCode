@@ -1,4 +1,5 @@
 import pandas as pda
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -27,7 +28,7 @@ def compareBestRadius():
         name = 'radiusInfo' + str(fk)+'.xlsx'
         # data1=pda.read_excel(path1+'/'+name)
         data2=pda.read_excel(path2+'/'+name)
-
+        pda.read_table
         data2.plot.line(x='radius',y='地块面积（平方米）',xticks=data2.radius,grid='on',figsize =(19.2,9.3))
         plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
         plt.rcParams['axes.unicode_minus'] = False  # 这两行需要手动设置
@@ -60,6 +61,11 @@ def compareBestRadiusWithSameWidth():
         plt.savefig(path2+'/compareBestRadius-image/'+str(fk).replace('.','_')+'-times.png')
         plt.savefig(path2 + '/1-4_num_' + str(fk).replace('.', '-')+'/' + str(fk).replace('.', '_') + '-times.png')
 
+
+
+
+
+
 path2 = r'D:\mmm\轨迹数据集\image'
 path1 =r'D:\mmm\轨迹数据集\image-20210223'
 infoname='widthInfo-1-4.xlsx'
@@ -67,4 +73,5 @@ infodata = pda.read_excel(path2+'/'+infoname)
 
 # compareTime()
 # compareBestRadius()
-compareBestRadiusWithSameWidth()
+# compareBestRadiusWithSameWidth()
+plotArea()

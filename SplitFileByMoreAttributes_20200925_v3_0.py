@@ -105,7 +105,7 @@ def LoLatitudeChangeToXY_batch(b_lon, b_lat):
     origin = GetPoint(b_lon[0], b_lat[0])  # 置 第一个 经纬度 为参考点
     x = []
     y = []
-    for i in range(1, col):
+    for i in range(0, col):
         x.append(origin.ToX(b_lon[i]))
         y.append(origin.ToY(b_lat[i]))
     return x, y

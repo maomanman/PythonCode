@@ -3,6 +3,8 @@ import pandas as pd
 import tkinter.messagebox
 from tkinter.filedialog import *
 
+from alpha_shape.ZuoBiaoZhuanHuan import LatLon2GSXY
+
 import re
 
 
@@ -45,14 +47,19 @@ def changeFile(flag=1):
                 if '序列号' not in data.columns:
                     data.insert(0, '序列号', range(1, data.shape[0] + 1))
 
+                x, y = LatLon2GSXY(data.纬度, data.经度)
+                data['x'] = x
+                data['y'] = y
+
+
                 data.set_index('序列号', inplace=True)
                 path1 = os.path.split(newName)[0] + '/csv'
                 if not os.path.exists(path1):
                     os.mkdir(path1)
                 newName = path1 + '/' + os.path.split(newName)[1]
-                if '经度' in data.columns:
-                    data.rename(columns={'经度': 'x','纬度': 'y'}, inplace=True)
-                # data.rename(columns={'x': '经度', 'y': '纬度'}, inplace=True)
+                # if '经度' in data.columns:
+                #     data.rename(columns={'经度': 'x','纬度': 'y'}, inplace=True)
+
                 data.to_csv(newName, encoding='utf-8')
             elif flag == 2:  # -->excel
                 if name.split('.')[1] == 'csv':

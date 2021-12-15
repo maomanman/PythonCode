@@ -557,7 +557,9 @@ def bootUpParaWorkTime(fileData,startIndex,endIndex,yangT,timeThrehold,speedThre
     for ind in range(1,paraPointNum):
 
         gapInd = paraData.loc[ind, '序列号'] - paraData.loc[ind - 1, '序列号']
-        if gapInd > 2 :  # 不连续(存在删除信号漂移点导致的序列号间隔为2）
+        if gapInd > 2 or (gapInd==2 and paraData.loc[ind, '序列号']-1 in list(fileData.序列号)):  # 不连续(存在删除信号漂移点导致的序列号间隔为2）
+
+
             if noWorkPointNum > 1: # 存在连续非工作点
                 paraStartIndex=paraData.loc[ind - noWorkPointNum, 'index']  # 连续非工作点的起始索引号
                 paraEndIndex =paraData.loc[ind - 1, 'index'] # 连续非工作点的结束索引号
@@ -708,9 +710,9 @@ def batchWorkTimeWithoutStopTime(timeThrehold = 300,speedThrehold = 1):
         workTime = indexDisContinuous(fileData,yangT,timeThrehold,speedThrehold)
         test21_result_info.loc[i] = [fileName, str(workTime),workTime.total_seconds()]
         if i % 10 == 0:
-            test21_result_info.to_excel(rootP + '/test21-总时间统计(除去开关机停歇时间).xlsx')
+            test21_result_info.to_excel(rootP + '/test21-总时间统计(除去开关机停歇时间)_1008.xlsx')
 
-    test21_result_info.to_excel(rootP + '/test21-总时间统计(除去开关机停歇时间).xlsx')
+    test21_result_info.to_excel(rootP + '/test21-总时间统计(除去开关机停歇时间)_1008.xlsx')
 
 #########################################################################################################
 # test21()
@@ -748,12 +750,12 @@ global debugFlag
 debugFlag = 1
 
 # # aFileLongTimeNoWork('00023 耕-大-梭==黑02-S45271_2018-05-05==0504-2148-filed.xlsx')
-# # # # batchLongTimeNoWork()
-fileData = pda.read_excel('D:/mmm/轨迹数据集/汇总/' + "00054 耕-中-套==鲁16-543106_2016-9-25==0924-2354-filed.xlsx")
-# wt = bootUpParaWorkTime(fileData,819,1631,4)
-#
-wt = indexDisContinuous(fileData,2,300,1)
-# # # wt = shutDownParaWorkTime(fileData,0,2687,2)
-print(wt)
+# # batchLongTimeNoWork()
+# fileData = pda.read_excel('D:/mmm/轨迹数据集/汇总/' + "00573 耕-中-绕==湘07-600001_2020-11-15==1115-0546-filed.xlsx")
+# # wt = bootUpParaWorkTime(fileData,819,1631,4)
+# #
+# wt = indexDisContinuous(fileData,4,300,1)
+# # # # wt = shutDownParaWorkTime(fileData,0,2687,2)
+# print(wt)
 
-# batchWorkTimeWithoutStopTime()
+batchWorkTimeWithoutStopTime()

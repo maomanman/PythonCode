@@ -1,5 +1,5 @@
 import os
-import pandas as pd
+import pandas as pda
 import tkinter.messagebox as tkm
 # from tkMessageBox import *
 from tkinter.filedialog import *
@@ -199,7 +199,7 @@ class App:
     #         self.new_path = 'D:/mmm/轨迹数据集/第4维度-按作业模式'
     #     self.show_new_path.delete(0, END)
     #     self.show_new_path.insert(0, self.new_path)
-    # self.file_name_info = pd.read_excel('D:/mmm/轨迹数据集/汇总/file_name_info.xlsx')
+    # self.file_name_info = pda.read_excel('D:/mmm/轨迹数据集/汇总/file_name_info.xlsx')
     # max_num = len(self.file_name_info) + 1
     # # self.new_file_index_text.delete(0, END)
     # self.new_file_index_text.insert(0, '{:0>5d}'.format(max_num))
@@ -222,7 +222,7 @@ class App:
             self.show_filename1.insert(0, self.filename)
             # self.show_filename1['state'] = 'disabled'
             if (self.filename.split('.')[1] == 'csv'):
-                num = 7
+                num = 8
             else:
                 if (self.filename.split('.')[1] == 'xls'):
                     num = 7
@@ -252,7 +252,7 @@ class App:
             cols = next(sheet_citys)[1:]
             sheet_citys = list(sheet_citys)
             data = (islice(r, 1, None) for r in sheet_citys)
-            sheet_citys = pd.DataFrame(data, columns=cols)
+            sheet_citys = pda.DataFrame(data, columns=cols)
 
             strPath = self.filepath.split('/')
             province = difflib.get_close_matches(strPath[-1], sheet_provinces, 1, cutoff=0.5)
@@ -377,13 +377,13 @@ class App:
         # 读取待分割轨迹文件
 
         if (self.filename.split('.')[1] == 'csv'):
-            data = pd.read_csv(self.filepath + '/' + self.filename)
+            data = pda.read_csv(self.filepath + '/' + self.filename)
         else:
-            data = pd.read_excel(self.filepath + '/' + self.filename)
+            data = pda.read_excel(self.filepath + '/' + self.filename)
 
-        if 'x' in data.columns: # 导入QGIS时将经度纬度改成了xy，现在改回去
+        if 'x' in data.columns:  # 导入QGIS时将经度纬度改成了xy，现在改回去
             data.rename(columns={'x': '经度', 'y': '纬度'}, inplace=True)
-            
+
         newFileName = []  # 新文件名集合，用于最后显示的
 
         self.new_path = self.show_new_path.get()
@@ -394,9 +394,8 @@ class App:
         else:
             error_point = []
 
-
         for i in range(0, len(index)):
-            newData = pd.DataFrame(columns=data.columns)
+            newData = pda.DataFrame(columns=data.columns)
             if type(index[i]) == list:  # 一个地块由多个索引段组成
                 for j in range(0, len(index[i])):
                     startIndex = int(re.split(':|：', index[i][j])[0]) - 1
@@ -412,7 +411,7 @@ class App:
                 newData.reset_index(drop=True, inplace=True)
                 tm = newData.loc[0, 'GPS时间']
                 if type(tm) == str:
-                    tm = pd.Timestamp(tm)
+                    tm = pda.Timestamp(tm)
                 date = '{:0>2d}'.format(tm.date().month) + '{:0>2d}'.format(tm.date().day)
                 time = '{:0>2d}'.format(tm.time().hour) + '{:0>2d}'.format(tm.time().minute)
                 if flag == 1:  # 地块轨迹文件名
@@ -421,32 +420,39 @@ class App:
                     self.new_file_index_text.delete(0, END)
                     self.new_file_index_text.insert(0, '{:0>5d}'.format(int(new_index) + 1))
                     # 将新文件名登记到 轨迹索引表中
-                    xlsx_row=self.file_total_info_xlsx.max_row
+                    filenameTemp = name + '.xlsx'
+                    xlsx_row = self.file_total_info_xlsx.max_row
                     self.file_total_info_xlsx[
-                        'D' + str(xlsx_row + 1)] = name + '.xlsx'  # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
+                        'D' + str(xlsx_row + 1)] = filenameTemp  # new_index 指excel新一行文件名的序号， 2 是文件名序号与表行号的差
+
                     # 添加 将文件名 拆解的函数
-                    excelE = '=LEFT(D{},5)'.format(str(xlsx_row+1))
-                    self.file_total_info_xlsx['E' + str(xlsx_row+1)] = excelE
-                    excelF = '=MID(D{},7,1)'.format(str(xlsx_row+ 1))
-                    self.file_total_info_xlsx['F' + str(xlsx_row+ 1)] = excelF
+                    excelE = '=LEFT(D{},5)'.format(str(xlsx_row + 1))
+                    self.file_total_info_xlsx['E' + str(xlsx_row + 1)] = excelE
+                    excelF = '=MID(D{},7,1)'.format(str(xlsx_row + 1))
+                    self.file_total_info_xlsx['F' + str(xlsx_row + 1)] = excelF
                     excelG = '=SWITCH(MID(D{},9,1),"大","大块面积","中","中等面积","小","小块面积","-","计算错误","=","计算错误")'.format(
-                        str(xlsx_row+ 1))
-                    self.file_total_info_xlsx['G' + str(xlsx_row+ 1)] = excelG
-                    excelH = '=SWITCH(MID(D{},11,1),"套","套行法","绕","绕行法","梭","梭行法","-","计算错误","=","计算错误")'.format(
-                        str(xlsx_row+ 1))
-                    self.file_total_info_xlsx['H' + str(xlsx_row+ 1)] = excelH
-                    self.file_total_info_xlsx['A' + str(xlsx_row+ 1)] = self.province_combobox.get()
-                    self.file_total_info_xlsx['B' + str(xlsx_row+ 1)] = self.city_combobox.get()
-                    self.file_total_info_xlsx['C' + str(xlsx_row+ 1)] = self.county_combobox.get()
+                        str(xlsx_row + 1))
+                    self.file_total_info_xlsx['G' + str(xlsx_row + 1)] = excelG
+                    excelH = '=SWITCH(MID(D{},11,1),"套","套行法","绕","绕行法","梭","梭行法","斜","斜行法","角","对角法","-","计算错误","=","计算错误")'.format(
+                        str(xlsx_row + 1))
+                    self.file_total_info_xlsx['H' + str(xlsx_row + 1)] = excelH
+                    self.file_total_info_xlsx['A' + str(xlsx_row + 1)] = self.province_combobox.get()
+                    self.file_total_info_xlsx['B' + str(xlsx_row + 1)] = self.city_combobox.get()
+                    self.file_total_info_xlsx['C' + str(xlsx_row + 1)] = self.county_combobox.get()
                     # 计算工作时长和工作幅宽
                     worktime, width = calWorkTime(newData)
-                    self.file_total_info_xlsx['L' + str(xlsx_row+ 1)] = str(worktime)
-                    self.file_total_info_xlsx['M' + str(xlsx_row+ 1)] = width
-                    #登记原文件序号
+                    self.file_total_info_xlsx['L' + str(xlsx_row + 1)] = str(worktime)
+                    self.file_total_info_xlsx['M' + str(xlsx_row + 1)] = width
+                    # 登记原文件序号
                     old_index = self.old_file_index_text.get()
-                    self.file_total_info_xlsx['N' + str(xlsx_row+ 1)] = old_index
+                    self.file_total_info_xlsx['N' + str(xlsx_row + 1)] = old_index
                     # 登记轨迹点个数
-                    self.file_total_info_xlsx['O' + str(xlsx_row+ 1)]=newData.shape[0]
+                    self.file_total_info_xlsx['O' + str(xlsx_row + 1)] = newData.shape[0]
+
+                    # 登记新文件链接
+                    link = './汇总/' + '"&$D$' + str(xlsx_row + 1) + '&"'
+                    showLink = new_index
+                    self.file_total_info_xlsx['Q' + str(xlsx_row + 1)] = '=HYPERLINK("{}","{}")'.format(link, showLink)
 
 
                 elif flag == 0:
@@ -479,7 +485,6 @@ class App:
             del newData
             del name
 
-
         # 将新文件名进行显示
         if flag == 1:  # 地块轨迹文件名
             self.show_index['state'] = 'normal'
@@ -500,7 +505,7 @@ class App:
         :param type: 待读取的文件类型
         :return:
         """
-        file_info = pd.DataFrame(columns=['filename'])
+        file_info = pda.DataFrame(columns=['filename'])
         fn = os.listdir(file_dir)
         count = len(fn)
         i = 0

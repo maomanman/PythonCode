@@ -65,6 +65,6 @@ def calAreaByEdge(sourceDataFile):
 # 4号边界-00146_edgePoint_R=7.98
 # 5号边界-00719_edgePoint_R=12.1
 # 6号边界-00514_edgePoint_R=10.51
-calAreaByEdge(r"D:\mmm\实验数据\test15\edgePoint\00514_edgePoint_R=10.51.xlsx")
+calAreaByEdge(r"D:\mmm\实验数据\test15-坐标转换纠正\edgePoint\00514_edgePoint_R=10.51.xlsx")
 
 

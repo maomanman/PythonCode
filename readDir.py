@@ -34,30 +34,37 @@ def readExcel():
     :return:
     """
 
-    wb = load_workbook(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
+    # wb = load_workbook(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
+    wb = load_workbook(r'D:\mmm\轨迹数据集\test8\test8-index.xlsx')
     wb._active_sheet_index = 0  # 此属性是用来指定读取 excel 的页
     ws = wb.active  # 读取excel数据，默认读取第0页数据，_active_sheet_index指定页后，则读取指定页的数据
     # ws['D57'] = '测试一下不改变格式'
-    ps=wb['Sheet3']
-    data = ps.values
-    cols = next(data)[1:]
-    data = list(data)
-    data = (islice(r, 1, None) for r in data)
-    df = pd.DataFrame(data,  columns=cols)
+    ps=wb['Sheet1']
+    print(ps['B2'].value)
+    ps['A3']=52
+    link ='/00052.png'
 
-    # data = list(ps.values)
-    # data = [data[i][0]  for i in  range(0,len(data))]
-    # print('甘肃省' in data)
-    # print(data)
-    print('武汉' in df[:].values)
-    print('武汉市' in df[:].values)
-    dd=difflib.get_close_matches('武汉市', df[:].values, 1, cutoff=0.5)
-    # print('天津市' in df[:].values)
-    print(dd)
-    print(dd == [])
+    ps['B3']='=HYPERLINK("{}", "{}")'.format(link, "00052.png")
+
+    # data = ps.values
+    # cols = next(data)[1:]
+    # data = list(data)
+    # data = (islice(r, 1, None) for r in data)
+    # df = pd.DataFrame(data,  columns=cols)
+    #
+    # # data = list(ps.values)
+    # # data = [data[i][0]  for i in  range(0,len(data))]
+    # # print('甘肃省' in data)
+    # # print(data)
+    # print('武汉' in df[:].values)
+    # print('武汉市' in df[:].values)
+    # dd=difflib.get_close_matches('武汉市', df[:].values, 1, cutoff=0.5)
+    # # print('天津市' in df[:].values)
+    # print(dd)
+    # print(dd == [])
 
 
-    # wb.save(r'D:\mmm\轨迹数据集\轨迹索引-v1.0 - 副本.xlsx')
+    wb.save(r'D:\mmm\轨迹数据集\test8\test8-index.xlsx')
 
 
 # start = time.time()
