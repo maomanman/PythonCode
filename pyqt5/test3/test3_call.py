@@ -12,6 +12,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from PyQt5.Qt import QWidget, QApplication,QTableWidgetItem
 
+
+from PyQt5.QtGui import QPixmap, QImage
+
+
 #导入designer工具生成的login模块
 from test3 import Ui_MainWindow
 
@@ -26,8 +30,19 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.load_button.clicked.connect(self.load)
         self.show()
 
+        pix = QPixmap('sexy.jpg')
 
+        self.label.setPixmap(pix)
 
+        # lb1 = QLabel(self)
+        # lb1.setGeometry(0, 0, 300, 200)
+        # lb1.setStyleSheet("border: 2px solid red")
+        # lb1.setPixmap(pix)
+        # lb2 = self.laLabel(self)
+        # lb2.setGeometry(0, 250, 300, 200)
+        # lb2.setPixmap(pix)
+        # lb2.setStyleSheet("border: 2px solid red")
+        # lb2.setScaledContents(True)
 
     def clear(self):
         pass

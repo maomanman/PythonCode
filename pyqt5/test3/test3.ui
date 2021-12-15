@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1071</width>
-    <height>535</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,9 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTableWidget" name="table">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -26,15 +23,12 @@
       <height>421</height>
      </rect>
     </property>
-    <property name="mouseTracking">
-     <bool>true</bool>
-    </property>
    </widget>
    <widget class="QPushButton" name="clear_button">
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>450</y>
+      <x>730</x>
+      <y>370</y>
       <width>97</width>
       <height>29</height>
      </rect>
@@ -46,8 +40,8 @@
    <widget class="QPushButton" name="load_button">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>450</y>
+      <x>890</x>
+      <y>370</y>
       <width>97</width>
       <height>29</height>
      </rect>
@@ -56,14 +50,17 @@
      <string>load</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="graphicsView">
+   <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>50</y>
-      <width>291</width>
-      <height>261</height>
+      <x>730</x>
+      <y>70</y>
+      <width>281</width>
+      <height>231</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
@@ -73,7 +70,7 @@
      <x>0</x>
      <y>0</y>
      <width>1071</width>
-     <height>26</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
