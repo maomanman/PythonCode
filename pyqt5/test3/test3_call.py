@@ -11,6 +11,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 from PyQt5.Qt import QWidget, QApplication,QTableWidgetItem
+
 #导入designer工具生成的login模块
 from test3 import Ui_MainWindow
 
@@ -26,14 +27,16 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.show()
 
 
+
+
     def clear(self):
         pass
 
 
     def load(self):
-        conn = psycopg2.connect("dbname=test1_data user=jm password=123")
+        conn = psycopg2.connect("dbname=postsql_test user=postgres password=123456")
         cur = conn.cursor()
-        cur.execute('select * from table1')
+        cur.execute('select * from tb_field_info limit 10')
         rows = cur.fetchall()
         row = cur.rowcount  # 取得记录个数，用于设置表格的行数
         vol = len(rows[0])  # 取得字段数，用于设置表格的列数
@@ -48,6 +51,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 temp_data = rows[i][j]  # 临时记录，不能直接插入表格
                 data = QTableWidgetItem(str(temp_data))  # 转换后可插入表格
                 self.table.setItem(i, j, data)
+
 if __name__ == "__main__":
     #固定的，PyQt5程序都需要QApplication对象。sys.argv是命令行参数列表，确保程序可以双击运行
     app = QApplication(sys.argv)
