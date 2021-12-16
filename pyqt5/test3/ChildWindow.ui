@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ChildDialog</class>
+ <widget class="QDialog" name="ChildDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>803</width>
+    <height>529</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>51</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="text">
+    <string>总工作时长(s)：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="totalTime_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>51</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>93</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>有效工作时长(s)：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="workTime_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>93</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="workDistance_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>177</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>135</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>总工作行程(m)：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="totalDistance_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>135</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>177</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>有效工作行程(m)：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>219</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>作业面积（m^2)：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="area_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>219</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>261</y>
+     <width>90</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>时间利用率：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="distanceRatio_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>303</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="timeRatio_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>261</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>303</y>
+     <width>60</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>行程率：</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="ratio_lineEdit">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>367</y>
+     <width>171</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>345</y>
+     <width>158</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>单位时间内的作业面积:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="edgeMap_button">
+   <property name="geometry">
+    <rect>
+     <x>471</x>
+     <y>402</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>显示底图</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="workMap_button">
+   <property name="geometry">
+    <rect>
+     <x>583</x>
+     <y>402</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>显示工作点</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="traMap_button">
+   <property name="geometry">
+    <rect>
+     <x>700</x>
+     <y>402</y>
+     <width>93</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>显示路径</string>
+   </property>
+  </widget>
+  <widget class="QGraphicsView" name="graphicsView">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>411</width>
+     <height>491</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>totalTime_lineEdit</tabstop>
+  <tabstop>workTime_lineEdit</tabstop>
+  <tabstop>totalDistance_lineEdit</tabstop>
+  <tabstop>workDistance_lineEdit</tabstop>
+  <tabstop>area_lineEdit</tabstop>
+  <tabstop>timeRatio_lineEdit</tabstop>
+  <tabstop>distanceRatio_lineEdit</tabstop>
+  <tabstop>ratio_lineEdit</tabstop>
+  <tabstop>edgeMap_button</tabstop>
+  <tabstop>workMap_button</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
