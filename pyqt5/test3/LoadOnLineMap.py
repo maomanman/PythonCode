@@ -129,6 +129,7 @@ def PlotLineOnMap(fileID = 1,fileType=1):
         #     ).add_to(san_map)
 
         # 只显示非工作点
+
         splitPoint = Lat.index(0)+1
 
         for lat, lon in zip(Lat[splitPoint:], Lon[splitPoint:]):
