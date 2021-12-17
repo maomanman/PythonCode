@@ -166,6 +166,9 @@ class MyChildForm(QMainWindow, U2):
         #显示路径图
         self.traMap_button.clicked.connect(self.traMapButtonClicked)
 
+        # 显示工作轨迹点
+        self.workMap_button.clicked.connect(self.workMapButtonClicked)
+
         #显示相关效率值
         self.showValues(self.fileID)
 
@@ -185,6 +188,17 @@ class MyChildForm(QMainWindow, U2):
         :return:
         """
         self.browser.load(QUrl(globalVal.mapPath))
+
+    def workMapButtonClicked(self):
+        """
+        将工作轨迹点个非工作轨迹点区别显示
+        :return:
+        """
+        PlotLineOnMap(self.fileID, fileType=3)
+        if globalVal.debug:
+            print("显示工作点",globalVal.workMapPath)
+        self.browser.load(QUrl(globalVal.workMapPath))
+        pass
 
     # def getFileID(self,fileID):
     #     """

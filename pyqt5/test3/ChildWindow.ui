@@ -39,6 +39,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="totalTime_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -65,6 +68,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="workTime_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -75,6 +81,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="workDistance_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -98,6 +107,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="totalDistance_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -140,6 +152,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="area_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -163,6 +178,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="distanceRatio_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -173,6 +191,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="timeRatio_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
@@ -199,6 +220,9 @@
    </property>
   </widget>
   <widget class="QLineEdit" name="ratio_lineEdit">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>583</x>
