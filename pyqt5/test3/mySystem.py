@@ -10,7 +10,7 @@ import sys
 import os
 import glob #用于模糊匹配获得文件名
 #PyQt5中使用的基本控件都在PyQt5.QtWidgets模块中
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow,QFileDialog
 from PyQt5.Qt import QWidget, QApplication,QTableWidgetItem
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import QUrl,QRect ,pyqtSignal
@@ -60,6 +60,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
         # 显示文件序号的按钮 的 单击事件 绑定 槽函数--弹出子窗口
         self.fileID_button.clicked.connect(self.showChildWindow)
+
+        # 导入轨迹文件
+        self.inputFile_button.clicked.connect(self.inputFile)
 
     #点击文件序号按钮 弹出子窗口
     def showChildWindow(self):
@@ -142,6 +145,10 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
                 data = QTableWidgetItem(str(temp_data))  # 转换后可插入表格
                 self.table.setItem(i, j, data)
 
+    # 导入轨迹文件
+    def inputFile(self):
+        fp = QFileDialog.getOpenFileName(None,"选择文件","D:/mmm/轨迹数据集/汇总/","All Files(*)")
+        self.filePath_lineEdit.setText(fp[0]) # 显示选择的文件
 
 # 子窗口
 class MyChildForm(QMainWindow, U2):

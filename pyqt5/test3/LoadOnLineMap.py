@@ -115,33 +115,35 @@ def PlotLineOnMap(fileID = 1,fileType=1):
         pointColor ='red'
 
         # 工作点和非工作点区分显示
-        # for lat, lon in zip(Lat, Lon):
-        #     if lat==0 and lon==0:
-        #         pointColor = 'beige'
-        #         continue
+        for lat, lon in zip(Lat, Lon):
+            if lat==0 and lon==0:
+                pointColor = 'beige'
+                continue
+            folium.Circle(
+                radius=0.1,
+                location=[lat, lon],
+                color=pointColor,
+                fill=True,
+                fill_color=pointColor,
+                fill_opacity=0.1,
+            ).add_to(san_map)
+
+
+        # # 只显示非工作点
+        # splitPoint = Lat.index(0)+1
+        #
+        # for lat, lon in zip(Lat[splitPoint:], Lon[splitPoint:]):
+        #
         #     folium.Circle(
         #         radius=0.1,
         #         location=[lat, lon],
-        #         color=pointColor,
+        #         color="beige",
         #         fill=True,
         #         fill_color=pointColor,
         #         fill_opacity=0.1,
         #     ).add_to(san_map)
 
-        # 只显示非工作点
 
-        splitPoint = Lat.index(0)+1
-
-        for lat, lon in zip(Lat[splitPoint:], Lon[splitPoint:]):
-
-            folium.Circle(
-                radius=0.1,
-                location=[lat, lon],
-                color="beige",
-                fill=True,
-                fill_color=pointColor,
-                fill_opacity=0.1,
-            ).add_to(san_map)
         san_map.save((globalVal.workMapName))
 
 

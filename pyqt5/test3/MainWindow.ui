@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>558</height>
+    <width>969</width>
+    <height>619</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,13 +95,49 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="okInput_button">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>540</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>确认导入</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="filePath_lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>540</y>
+      <width>561</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="inputFile_button">
+    <property name="geometry">
+     <rect>
+      <x>32</x>
+      <y>540</y>
+      <width>131</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>选择轨迹文件：</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>972</width>
+     <width>969</width>
      <height>26</height>
     </rect>
    </property>
